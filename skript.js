@@ -10,6 +10,9 @@ let upgrade2Interval = null;
 let upgrade3Interval = null;
 let upgrade4Interval = null;
 let upgrade1Pocet = 0;
+let upgrade2Pocet = 0;
+let upgrade3Pocet = 0;
+let upgrade4Pocet = 0;
 
 // init UPGRADE COST
 let upgrade1Cena = 100;
@@ -55,6 +58,15 @@ const upgrade1button = document.getElementById('upgrade1');
 const upgrade2button = document.getElementById('upgrade2');
 const upgrade3button = document.getElementById('upgrade3');
 const upgrade4button = document.getElementById('upgrade4');
+const zobrazIQps = document.createElement('p');
+zobrazIQps.id = 'iqps';
+zobrazSkore.parentNode.insertBefore(zobrazIQps, zobrazSkore.nextSibling);
+
+// Funkce pro výpočet IQ za sekundu
+function aktualizujIQps() {
+    const iqps = (0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet);
+    zobrazIQps.textContent = `Body za sekundu: ${iqps.toFixed(1)} IQps`;
+}
 
 // Když kliknu
 klikButton.addEventListener('click', () => {
@@ -62,7 +74,7 @@ klikButton.addEventListener('click', () => {
     zobrazSkore.textContent = skoreIQ.toFixed(0);
 });
 
-//upgrade #1
+// upgrade #1
 upgrade1button.addEventListener('click', () => {
     if (skoreIQ >= upgrade1Cena) {
         skoreIQ -= upgrade1Cena;
@@ -70,52 +82,56 @@ upgrade1button.addEventListener('click', () => {
         upgrade1Cena *= 1.05;
         upgrade1Pocet++;
         zobrazSkore.textContent = skoreIQ.toFixed(0);
-        upgrade1button.textContent = `Koupeno: ${upgrade1Pocet}, Cena dalšího: ${upgrade1Cena.toFixed(0)} bodů IQ`;
+        upgrade1button.textContent = `Koupeno: ${upgrade1Pocet}, Cena dalšího: ${upgrade1Cena.toFixed(0)} bodů`;
     }
 });
 plavouciOkno(upgrade1button, () => `Upgrade manuálního klikání (+5% za kliknutí, koupeno: ${upgrade1Pocet}, cena dalšího upgradu: ${upgrade1Cena.toFixed(0)} bodů)`);
 
 // upgrade #2
 upgrade2button.addEventListener('click', () => {
-    if (skoreIQ >= upgrade2Cena && !upgrade2Interval) {
+    if (skoreIQ >= upgrade2Cena) {
         skoreIQ -= upgrade2Cena;
         upgrade2Cena *= 1.10;
-        upgrade2Interval = setInterval(() => {
-            skoreIQ += 0.5;
-            zobrazSkore.textContent = skoreIQ.toFixed(0);
-        }, 1000);
+        upgrade2Pocet++;
         zobrazSkore.textContent = skoreIQ.toFixed(0);
-        upgrade2button.textContent = `Autoclicker (+0.5 bodu za sekundu, cena: ${upgrade2Cena.toFixed(0)} bodů)`;
+        upgrade2button.textContent = `Autoclicker (+0.5 bodu za sekundu, koupeno: ${upgrade2Pocet}, cena dalšího: ${upgrade2Cena.toFixed(0)} bodů)`;
+        aktualizujIQps();
     }
 });
-plavouciOkno(upgrade2button, () => upgrade2Cena);
+plavouciOkno(upgrade2button, () => `Autoclicker (+0.5 bodu za sekundu, koupeno: ${upgrade2Pocet}, cena dalšího upgradu: ${upgrade2Cena.toFixed(0)} bodů)`);
 
 // upgrade #3
 upgrade3button.addEventListener('click', () => {
-    if (skoreIQ >= upgrade3Cena && !upgrade3Interval) {
+    if (skoreIQ >= upgrade3Cena) {
         skoreIQ -= upgrade3Cena;
         upgrade3Cena *= 1.10;
-        upgrade3Interval = setInterval(() => {
-            skoreIQ += 1;
-            zobrazSkore.textContent = skoreIQ.toFixed(0);
-        }, 1000);
+        upgrade3Pocet++;
         zobrazSkore.textContent = skoreIQ.toFixed(0);
-        upgrade3button.textContent = `1 bod za sekundu (cena: ${upgrade3Cena.toFixed(0)} bodů)`;
+        upgrade3button.textContent = `1 bod za sekundu (koupeno: ${upgrade3Pocet}, cena dalšího: ${upgrade3Cena.toFixed(0)} bodů)`;
+        aktualizujIQps();
     }
 });
-plavouciOkno(upgrade3button, () => upgrade3Cena);
+plavouciOkno(upgrade3button, () => `1 bod za sekundu (koupeno: ${upgrade3Pocet}, cena dalšího upgradu: ${upgrade3Cena.toFixed(0)} bodů)`);
 
 // upgrade #4
 upgrade4button.addEventListener('click', () => {
-    if (skoreIQ >= upgrade4Cena && !upgrade4Interval) {
+    if (skoreIQ >= upgrade4Cena) {
         skoreIQ -= upgrade4Cena;
         upgrade4Cena *= 1.10;
-        upgrade4Interval = setInterval(() => {
-            skoreIQ += 5;
-            zobrazSkore.textContent = skoreIQ.toFixed(0);
-        }, 1000);
+        upgrade4Pocet++;
         zobrazSkore.textContent = skoreIQ.toFixed(0);
-        upgrade4button.textContent = `5 bodů za sekundu (cena: ${upgrade4Cena.toFixed(0)} bodů)`;
+        upgrade4button.textContent = `5 bodů za sekundu (koupeno: ${upgrade4Pocet}, cena dalšího: ${upgrade4Cena.toFixed(0)} bodů)`;
+        aktualizujIQps();
     }
 });
-plavouciOkno(upgrade4button, () => upgrade4Cena);
+plavouciOkno(upgrade4button, () => `5 bodů za sekundu (koupeno: ${upgrade4Pocet}, cena dalšího upgradu: ${upgrade4Cena.toFixed(0)} bodů)`);
+
+// Automatické přidávání bodů za sekundu
+setInterval(() => {
+    let bodyZaSekundu = (0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet);
+    skoreIQ += bodyZaSekundu;
+    zobrazSkore.textContent = skoreIQ.toFixed(0);
+}, 1000);
+
+// Aktualizace ukazatele IQ za sekundu
+setInterval(aktualizujIQps, 1000);
