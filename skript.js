@@ -13,6 +13,9 @@ let upgrade1Pocet = 0;
 let upgrade2Pocet = 0;
 let upgrade3Pocet = 0;
 let upgrade4Pocet = 0;
+let upgrade2TotalIQ = 0;
+let upgrade3TotalIQ = 0;
+let upgrade4TotalIQ = 0;
 
 // init UPGRADE COST
 let upgrade1Cena = 100;
@@ -29,13 +32,14 @@ function plavouciOkno(button, getText) {
     okynko.style.position = 'absolute';
     okynko.style.backgroundColor = '#333';
     okynko.style.color = '#fff';
-    okynko.style.padding = '5px';
+    okynko.style.padding = '10px';
     okynko.style.borderRadius = '5px';
     okynko.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.5)';
     okynko.style.display = 'none';
+    okynko.style.whiteSpace = 'pre-line';
 
     button.addEventListener('mouseover', (e) => {
-        okynko.textContent = getText();
+        okynko.innerHTML = getText();
         okynko.style.display = 'block';
         okynko.style.left = e.pageX + 'px';
         okynko.style.top = (e.pageY + 20) + 'px';
@@ -85,7 +89,13 @@ upgrade1button.addEventListener('click', () => {
         upgrade1button.textContent = `Koupeno: ${upgrade1Pocet}, Cena dalšího: ${upgrade1Cena.toFixed(0)} bodů`;
     }
 });
-plavouciOkno(upgrade1button, () => `Upgrade manuálního klikání (+5% za kliknutí, koupeno: ${upgrade1Pocet}, cena dalšího upgradu: ${upgrade1Cena.toFixed(0)} bodů)`);
+plavouciOkno(upgrade1button, () => `Neuromotorický upgrade
+
+<i>"Autoklik každou sekundu."</i>
+
+Neuromotorický upgrade vytváří ${hodnotaKliku.toFixed(2)} IQps.
+Neuromotorický upgrade vytváří ${hodnotaKliku.toFixed(2)} IQps, což je ${((hodnotaKliku / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+Neuromotorický upgrade zatím vytvořil ${hodnotaKliku.toFixed(0)} IQ.`);
 
 // upgrade #2
 upgrade2button.addEventListener('click', () => {
@@ -98,7 +108,13 @@ upgrade2button.addEventListener('click', () => {
         aktualizujIQps();
     }
 });
-plavouciOkno(upgrade2button, () => `Autoclicker (+0.5 bodu za sekundu, koupeno: ${upgrade2Pocet}, cena dalšího upgradu: ${upgrade2Cena.toFixed(0)} bodů)`);
+plavouciOkno(upgrade2button, () => `Autoclicker
+
+<i>"Popis: Automaticky generuje body za sekundu."</i>
+
+"Autoclicker" vytváří ${(0.5 * upgrade2Pocet).toFixed(2)} jednotek IQps.
+"Autoclicker" vytváří ${(0.5 * upgrade2Pocet).toFixed(2)} IQps, což je ${((0.5 * upgrade2Pocet / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+"Autoclicker" zatím vytvořil ${upgrade2TotalIQ.toFixed(0)} IQ.`);
 
 // upgrade #3
 upgrade3button.addEventListener('click', () => {
@@ -111,7 +127,13 @@ upgrade3button.addEventListener('click', () => {
         aktualizujIQps();
     }
 });
-plavouciOkno(upgrade3button, () => `1 bod za sekundu (koupeno: ${upgrade3Pocet}, cena dalšího upgradu: ${upgrade3Cena.toFixed(0)} bodů)`);
+plavouciOkno(upgrade3button, () => `Bioprocesory
+
+<i>"Popis: Automaticky generuje 1 bod za sekundu."</i>
+
+"Bioprocesory" vytváří ${(1 * upgrade3Pocet).toFixed(2)} jednotek IQps.
+"Bioprocesory" vytváří ${(1 * upgrade3Pocet).toFixed(2)} IQps, což je ${((1 * upgrade3Pocet / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+"Bioprocesory" zatím vytvořil ${upgrade3TotalIQ.toFixed(0)} IQ.`);
 
 // upgrade #4
 upgrade4button.addEventListener('click', () => {
@@ -124,12 +146,21 @@ upgrade4button.addEventListener('click', () => {
         aktualizujIQps();
     }
 });
-plavouciOkno(upgrade4button, () => `5 bodů za sekundu (koupeno: ${upgrade4Pocet}, cena dalšího upgradu: ${upgrade4Cena.toFixed(0)} bodů)`);
+plavouciOkno(upgrade4button, () => `Cloudová výpočetní síla
+
+<i>"Popis: Automaticky generuje 5 bodů za sekundu."</i>
+
+"Cloudová výpočetní síla" vytváří ${(5 * upgrade4Pocet).toFixed(2)} jednotek IQps.
+"Cloudová výpočetní síla" vytváří ${(5 * upgrade4Pocet).toFixed(2)} IQps, což je ${((5 * upgrade4Pocet / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+"Cloudová výpočetní síla" zatím vytvořila ${upgrade4TotalIQ.toFixed(0)} IQ.`);
 
 // Automatické přidávání bodů za sekundu
 setInterval(() => {
     let bodyZaSekundu = (0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet);
     skoreIQ += bodyZaSekundu;
+    upgrade2TotalIQ += (0.5 * upgrade2Pocet);
+    upgrade3TotalIQ += (1 * upgrade3Pocet);
+    upgrade4TotalIQ += (5 * upgrade4Pocet);
     zobrazSkore.textContent = skoreIQ.toFixed(0);
 }, 1000);
 
