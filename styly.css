@@ -41,36 +41,60 @@ body {
     cursor: pointer;
 }
 
-#klikaci-sloupec{
+#sloupce {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 95%;
     margin: 0 auto;
+    gap: 20px;
+}
+#klikaci-sloupec{
+    margin: 0 10px;
     width: 50%;
     padding: 20px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 10px;
     align-items: center;
     border: #000000 1px solid;
 }
 #sloupec-upgrade{
-    margin: 0 auto;
+    margin: 0 10px;
     width: 30%;
     padding: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
     border: #000000 1px solid;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 10px;
+}
+#sloupec-upgrade h2{
+    margin-bottom: 20px;
+}
+#sloupec-upgrade button
+{
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    text-align: center;
 }
 #sloupec-statistiky{
-    margin: 0 auto;
+    margin: 0 10px;
     width: 20%;
     padding: 20px;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 10px;
     align-items: center;
     border: #000000 1px solid;
 }
 
 /*SEKCE 900px+*/
-/*------------------------------------------------------*/
 #wrapper{
     width: 900px;
 }
@@ -93,7 +117,6 @@ body {
 #obsah {
     width: 900px;
     float: left;
-    /*border: 1px outset rgb(255, 0, 0);*/
     position: static;
     font-size: 1.2em;
     text-shadow: rgb(255, 255, 255) 1px 0 10px;
@@ -114,9 +137,7 @@ body {
     font-size: 0.6em;
     position: fixed;
     bottom: 0em;
-    /*transition: 0.2s;*/
 }
-/*------------------------------------------------------*/
 /*SEKCE 768px*/
 @media screen and (max-width: 768px) {
 #wrapper{
@@ -138,7 +159,6 @@ body {
     width: 100%;
 }
 }
-/*------------------------------------------------------*/
 /*SEKCE 320px*/
 @media screen and (max-width: 320px) {
     #wrapper{

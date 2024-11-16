@@ -70,7 +70,7 @@ upgrade1button.addEventListener('click', () => {
         upgrade1Cena *= 1.05;
         upgrade1Pocet++;
         zobrazSkore.textContent = skoreIQ.toFixed(0);
-        upgrade1button.textContent = `Koupeno: ${upgrade1Pocet}, Cena dalšího: ${upgrade1Cena.toFixed(0)} bodů`;
+        upgrade1button.textContent = `Koupeno: ${upgrade1Pocet}, Cena dalšího: ${upgrade1Cena.toFixed(0)} bodů IQ`;
     }
 });
 plavouciOkno(upgrade1button, () => `Upgrade manuálního klikání (+5% za kliknutí, koupeno: ${upgrade1Pocet}, cena dalšího upgradu: ${upgrade1Cena.toFixed(0)} bodů)`);
