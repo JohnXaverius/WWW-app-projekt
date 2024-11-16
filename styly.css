@@ -32,14 +32,38 @@ body {
     align-items: center;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0);
+    cursor: url('minimozek.png'), auto;
 }
 
-#click-button {
-    padding: 10px 20px;
+#klik-button {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 9px 9px 9px 9px #3d3d3d;
+    outline: none;
+    background-color: transparent;    
+    padding: 15px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
     font-size: 16px;
-    margin-top: 10px;
+    margin: 4px 2px;
     cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    opacity: 1;
 }
+
+#klik-button:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+    transform: scale(1.1);
+  }
+
+#klik-button:active {
+    background-color: transparent;
+    box-shadow: 0;
+    transform: translateY(4px);
+    opacity: 0.5;
+    }
 
 #sloupce {
     display: flex;
@@ -50,6 +74,7 @@ body {
     margin: 0 auto;
     gap: 20px;
 }
+
 #klikaci-sloupec{
     margin: 0 10px;
     width: 50%;
@@ -61,6 +86,7 @@ body {
     align-items: center;
     border: #000000 1px solid;
 }
+
 #sloupec-upgrade{
     margin: 0 10px;
     width: 30%;
@@ -75,13 +101,58 @@ body {
 #sloupec-upgrade h2{
     margin-bottom: 20px;
 }
-#sloupec-upgrade button
+/*#sloupec-upgrade button
 {
     width: 100%;
     max-width: 300px;
     padding: 10px;
     text-align: center;
+}*/
+
+.upgradeButton{
+    border: none;
+    border-radius: 15px;
+    box-shadow: 9px 9px 9px 9px #3d3d3d;
+    outline: none;
+    background-color: transparent;    
+    padding: 15px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    opacity: 1;
 }
+
+.upgradeButton:hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+  }
+
+.upgradeButton:active {
+    background-color: transparent;
+    box-shadow: 0;
+    transform: translateY(4px);
+    }
+
+.upgradeHlavicka{
+    display: flex; 
+    justify-content: space-between;
+}
+.upgradeJmeno{
+    text-align: left;
+}
+.upgradeCena{
+    text-align: left; 
+    font-size: smaller; 
+    margin-top: 5px;
+}
+.upgradeLVL{
+    text-align: right;
+}
+
 #sloupec-statistiky{
     margin: 0 10px;
     width: 20%;
