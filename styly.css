@@ -20,34 +20,73 @@ img, iframe, canvas, video, svg {
     background-position: center;
     background-size: cover;
     background-attachment: fixed;
-    filter: blur(5px) grayscale(10%) opacity(40%);
-    -webkit-filter: blur(5px) grayscale(10%) opacity(40%);
+    filter: blur(5px) grayscale(50%) opacity(40%);
+    -webkit-filter: blur(5px) grayscale(50%) opacity(40%);
  }
 
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.1);
+    color: white;
+    text-align: center;
+    line-height: 10px;
+    z-index: 10;
+     }
+
 body {
-    margin: 0 auto;
+    margin: 0;
+    padding-top: 90px;
     font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     background-color: rgba(0, 0, 0, 0);
     cursor: url('minimozek.png'), auto;
 }
 
-#klik-button {
+#sloupce {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 95%;
+    margin: 0px auto 0;
+    padding: 0;
+    gap: 15px;
+}
+
+/*NASTAVENI SLOUPCE KLIKANI*/
+
+#rannifotka{
+    width: 250px; 
+    height: 250px; 
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#klikaci-sloupec{
+    margin: 0 10px;
+    width: 30%;
+    padding: 5px;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
     border: none;
-    border-radius: 15px;
-    box-shadow: 9px 9px 9px 9px #3d3d3d;
-    outline: none;
-    background-color: transparent;    
+}
+#klik-button {
+    user-select: none;
+    border: none;
     padding: 15px 25px;
+    outline: none;
+    border-radius: 15px;
+    background-color: transparent;  
+    box-shadow: 2px 2px 5px #3d3d3d;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
     margin: 4px 2px;
-    cursor: pointer;
     -webkit-transition-duration: 0.4s;
     transition-duration: 0.4s;
     opacity: 1;
@@ -55,45 +94,24 @@ body {
 
 #klik-button:hover {
     box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
-    transform: scale(1.1);
+    transform: translateY(-2px);
   }
-
 #klik-button:active {
     background-color: transparent;
     box-shadow: 0;
-    transform: translateY(4px);
-    opacity: 0.5;
+    transform: translateY(2px);
+    transform: scale(1.1);
+    filter: brightness(1.5);
     }
 
-#sloupce {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100%;
-    max-width: 95%;
-    margin: 0 auto;
-    gap: 20px;
-}
-
-#klikaci-sloupec{
-    margin: 0 10px;
-    width: 50%;
-    padding: 20px;
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    border: #000000 1px solid;
-}
-
+/*NASTAVENI SLOUPCE UPGRADE*/
 #sloupec-upgrade{
     margin: 0 10px;
-    width: 30%;
-    padding: 20px;
+    width: 40%;
+    padding: 5px;
     display: flex;
     align-items: center;
-    border: #000000 1px solid;
+    border: none;
     justify-content: flex-start;
     flex-direction: column;
     gap: 10px;
@@ -101,18 +119,21 @@ body {
 #sloupec-upgrade h2{
     margin-bottom: 20px;
 }
-/*#sloupec-upgrade button
-{
-    width: 100%;
-    max-width: 300px;
-    padding: 10px;
-    text-align: center;
-}*/
+
+.ikonaIQ {
+    width: 10px; 
+    height: 13px;
+    display: inline-block;
+    vertical-align: middle;
+}
 
 .upgradeButton{
+    user-select: none;
+    width: 300px;
+    height: 50px;
     border: none;
     border-radius: 15px;
-    box-shadow: 9px 9px 9px 9px #3d3d3d;
+    box-shadow: 2px 2px 5px #3d3d3d;
     outline: none;
     background-color: transparent;    
     padding: 15px 25px;
@@ -121,7 +142,6 @@ body {
     display: inline-block;
     font-size: 16px;
     margin: 4px 2px;
-    cursor: pointer;
     -webkit-transition-duration: 0.4s;
     transition-duration: 0.4s;
     opacity: 1;
@@ -129,40 +149,65 @@ body {
 
 .upgradeButton:hover {
     box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+    transform: translateY(-2px);
   }
 
 .upgradeButton:active {
     background-color: transparent;
-    box-shadow: 0;
-    transform: translateY(4px);
+    transform: translateY(2px);
+    filter: brightness(1.5);
     }
 
 .upgradeHlavicka{
     display: flex; 
     justify-content: space-between;
+    width: 100%;
+    margin-bottom: 5px;
+    gap: 15px;
 }
 .upgradeJmeno{
+    font-size: 1rem;
     text-align: left;
 }
-.upgradeCena{
-    text-align: left; 
-    font-size: smaller; 
-    margin-top: 5px;
-}
+
 .upgradeLVL{
+    font-size: 1rem;
     text-align: right;
 }
 
+.upgradeCena{
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    gap: 5px;
+    font-size: 0.6rem;
+}
+
+.okynko {
+    position: absolute;
+    background-color: #333; 
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    white-space: pre-line;
+    opacity: 1;
+    z-index: 100;
+    display: none;
+    width: max-content;
+}
+
+/*NASTAVENI SLOUPCE STATISTIKY*/
 #sloupec-statistiky{
     margin: 0 10px;
-    width: 20%;
-    padding: 20px;
+    width: 30%;
+    padding: 5px;
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
     gap: 10px;
     align-items: center;
-    border: #000000 1px solid;
+    border: none;
 }
 
 /*SEKCE 900px+*/

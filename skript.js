@@ -26,33 +26,25 @@ function plavouciOkno(button, getText) {
     okynko.className = 'okynko';
     document.body.appendChild(okynko);
 
-    okynko.style.position = 'absolute';
-    okynko.style.backgroundColor = '#333';
-    okynko.style.color = '#fff';
-    okynko.style.padding = '10px';
-    okynko.style.borderRadius = '5px';
-    okynko.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.5)';
-    okynko.style.display = 'none';
-    okynko.style.whiteSpace = 'pre-line';
-
     button.addEventListener('mouseover', (e) => {
         setInterval(() => {
             okynko.innerHTML = getText();
         }, 1000);
+        const buttonRect = button.getBoundingClientRect(); 
         okynko.style.display = 'block';
-        okynko.style.left = e.pageX + 'px';
-        okynko.style.top = (e.pageY + 20) + 'px';
-    });
-
-    button.addEventListener('mousemove', (e) => {
-        okynko.style.left = e.pageX + 'px';
-        okynko.style.top = (e.pageY + 20) + 'px';
+        okynko.style.left = `${buttonRect.right + 30}px`;
+        okynko.style.top = `${buttonRect.top}px`;
     });
 
     button.addEventListener('mouseout', () => {
         okynko.style.display = 'none';
     });
 }
+
+//blokování označování myší
+document.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+});
 
 // init konstanty
 const klikButton = document.getElementById('klik-button');
@@ -68,7 +60,7 @@ zobrazSkore.parentNode.insertBefore(zobrazIQps, zobrazSkore.nextSibling);
 // Funkce pro výpočet IQ za sekundu
 function aktualizujIQps() {
     const iqps = (0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet);
-    zobrazIQps.textContent = `Body za sekundu: ${iqps.toFixed(1)} IQps`;
+    zobrazIQps.textContent = `${iqps.toFixed(1)} IQ/s`;
 }
 
 // Když kliknu
