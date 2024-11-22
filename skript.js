@@ -15,6 +15,7 @@ let upgrade3TotalIQ = 0;
 let upgrade4TotalIQ = 0;
 
 // init UPGRADE COST
+// test
 let upgrade1Cena = 100;
 let upgrade2Cena = 200;
 let upgrade3Cena = 400;
