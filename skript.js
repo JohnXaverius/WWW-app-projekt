@@ -5,21 +5,37 @@ let hodnotaKliku = 100;
 let upgrade2Interval = null;
 let upgrade3Interval = null;
 let upgrade4Interval = null;
+let upgrade5Interval = null;
+let upgrade6Interval = null;
+let upgrade7Interval = null;
+let upgrade8Interval = null;
 let upgrade1Pocet = 0;
 let upgrade2Pocet = 0;
 let upgrade3Pocet = 0;
 let upgrade4Pocet = 0;
+let upgrade5Pocet = 0;
+let upgrade6Pocet = 0;
+let upgrade7Pocet = 0;
+let upgrade8Pocet = 0;
 let upgrade1TotalIQ = 0;
 let upgrade2TotalIQ = 0;
 let upgrade3TotalIQ = 0;
 let upgrade4TotalIQ = 0;
+let upgrade5TotalIQ = 0;
+let upgrade6TotalIQ = 0;
+let upgrade7TotalIQ = 0;
+let upgrade8TotalIQ = 0;
 
 // init UPGRADE COST
 // test
-let upgrade1Cena = 100;
-let upgrade2Cena = 200;
-let upgrade3Cena = 400;
-let upgrade4Cena = 800;
+let upgrade1Cena = 10;
+let upgrade2Cena = 100;
+let upgrade3Cena = 1100;
+let upgrade4Cena = 12000;
+let upgrade5cena = 130000;
+let upgrade6cena = 1500000;
+let upgrade7cena = 22000000;
+let upgrade8cena = 330000000;
 
 //init Plavouci okno
 function plavouciOkno(button, getText) {
@@ -28,9 +44,7 @@ function plavouciOkno(button, getText) {
     document.body.appendChild(okynko);
 
     button.addEventListener('mouseover', (e) => {
-        setInterval(() => {
-            okynko.innerHTML = getText();
-        }, 1000);
+        okynko.innerHTML = getText();
         const buttonRect = button.getBoundingClientRect(); 
         okynko.style.display = 'block';
         okynko.style.left = `${buttonRect.right + 30}px`;
@@ -49,20 +63,23 @@ document.addEventListener('mousedown', (event) => {
 
 // init konstanty
 const klikButton = document.getElementById('klik-button');
-const zobrazSkore = document.getElementById('zobrazSkore');
 const upgrade1button = document.getElementById('upgrade1');
 const upgrade2button = document.getElementById('upgrade2');
 const upgrade3button = document.getElementById('upgrade3');
 const upgrade4button = document.getElementById('upgrade4');
-const zobrazIQps = document.createElement('p');
-zobrazIQps.id = 'iqps';
-zobrazSkore.parentNode.insertBefore(zobrazIQps, zobrazSkore.nextSibling);
+const upgrade5button = document.getElementById('upgrade5');
+const upgrade6button = document.getElementById('upgrade6');
+const upgrade7button = document.getElementById('upgrade7');
+const upgrade8button = document.getElementById('upgrade8');
+const zobrazSkore = document.getElementById('zobrazSkore');
+const zobrazIQps = document.getElementById('iqps');
 
-// Funkce pro výpočet IQ za sekundu
+// Funkce pro výpočet IQps
 function aktualizujIQps() {
-    const iqps = (0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet);
+    const iqps = (1 * upgrade2Pocet) + (5 * upgrade3Pocet) + (50 * upgrade4Pocet);
     zobrazIQps.textContent = `${iqps.toFixed(1)} IQ/s`;
 }
+setInterval(aktualizujIQps, 1000);
 
 // Když kliknu
 klikButton.addEventListener('click', () => {
@@ -76,7 +93,7 @@ klikButton.addEventListener('click', () => {
 upgrade1button.addEventListener('click', () => {
     if (skoreIQ >= upgrade1Cena) {
         skoreIQ -= upgrade1Cena;
-        hodnotaKliku *= 1.05;
+        hodnotaKliku *= 1.001;
         upgrade1Cena *= 1.05;
         upgrade1Pocet++;
         zobrazSkore.textContent = skoreIQ.toFixed(0);
@@ -108,7 +125,7 @@ plavouciOkno(upgrade2button, () => `Dopaminová pumpa
 
 <i>"Automaticky generuje body za sekundu."</i>
 
-Dopaminová pumpa vytváří ${(0.5 * upgrade2Pocet).toFixed(2)} IQps, což je ${((0.5 * upgrade2Pocet / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+Dopaminová pumpa vytváří ${(1.0 * upgrade2Pocet).toFixed(2)} IQps, což je ${((1 * upgrade2Pocet / ((1 * upgrade2Pocet) + (5 * upgrade3Pocet) + (50 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
 Dopaminová pumpa zatím vytvořila ${upgrade2TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade2TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového množství IQ.`);
 
@@ -128,7 +145,7 @@ plavouciOkno(upgrade3button, () => `Bioprocesory
 
 <i>"Elon říkal, že to půjde."</i>
 
-Bioprocesory vytváří ${(1 * upgrade3Pocet).toFixed(2)} IQps, což je ${((1 * upgrade3Pocet / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+Bioprocesory vytváří ${(5.0 * upgrade3Pocet).toFixed(2)} IQps, což je ${((5 * upgrade3Pocet / ((1 * upgrade2Pocet) + (5 * upgrade3Pocet) + (50 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
 Bioprocesory zatím vytvořily ${upgrade3TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade3TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového množství IQ.`);
 
@@ -148,18 +165,22 @@ plavouciOkno(upgrade4button, () => `Cloudová výpočetní síla
 
 <i>"Proč k tomu nepoužít další mozky?"</i>
 
-Cloudová výpočetní síla vytváří ${(5 * upgrade4Pocet).toFixed(2)} IQps, což je ${((5 * upgrade4Pocet / ((0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
+Cloudová výpočetní síla vytváří ${(50.0 * upgrade4Pocet).toFixed(2)} IQps, což je ${((50 * upgrade4Pocet / ((1 * upgrade2Pocet) + (5 * upgrade3Pocet) + (50 * upgrade4Pocet))) * 100).toFixed(1)}% z celkového počtu IQps.
 Cloudová výpočetní síla zatím vytvořila ${upgrade4TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade4TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového množství IQ.`);
 
 // Automatické přidávání bodů za sekundu
 setInterval(() => {
-    let bodyZaSekundu = (0.5 * upgrade2Pocet) + (1 * upgrade3Pocet) + (5 * upgrade4Pocet);
+    let bodyZaSekundu = (1.0 * upgrade2Pocet) + (5.0 * upgrade3Pocet) + (50.0 * upgrade4Pocet) + (275.0 * upgrade5Pocet) + (1500.0 * upgrade6Pocet) + (8250.0 * upgrade7Pocet) + (45000.0 * upgrade8Pocet);
     skoreIQ += bodyZaSekundu;
     celkoveNasbiraneIQ += bodyZaSekundu;
-    upgrade2TotalIQ += (0.5 * upgrade2Pocet);
-    upgrade3TotalIQ += (1 * upgrade3Pocet);
-    upgrade4TotalIQ += (5 * upgrade4Pocet);
+    upgrade2TotalIQ += (1.0 * upgrade2Pocet);
+    upgrade3TotalIQ += (5.0 * upgrade3Pocet);
+    upgrade4TotalIQ += (50.0 * upgrade4Pocet);
+    upgrade5TotalIQ += (275.0 * upgrade5Pocet);
+    upgrade6TotalIQ += (1500.0 * upgrade6Pocet);
+    upgrade7TotalIQ += (8250.0 * upgrade7Pocet);
+    upgrade8TotalIQ += (45000.0 * upgrade8Pocet);
     zobrazSkore.textContent = skoreIQ.toFixed(0);
 }, 1000);
 
