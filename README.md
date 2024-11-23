@@ -249,6 +249,6 @@ Aplikace je organizována pomocí funkcí a logických skupin proměnných. Pro 
 ---
 
 ## 7. Kontaktní údaje
-Autor: Braindead Clicker tým
+Autor: Braindead Clicker tým \
 Kontakt:[lukas.suchy@outlook.com](mailto:lukas.suchy@outlook.com) \
 Betatest: [helmut_von_klobasa@outlook.com](mailto:helmut_von_klobasa@outlook.com)
