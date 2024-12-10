@@ -1,7 +1,7 @@
 // init VAR
 let skoreIQ = 0;
 let celkoveNasbiraneIQ = 0;
-let hodnotaKliku = 100;
+let hodnotaKliku = 10000000;
 let upgrade2Interval = null;
 let upgrade3Interval = null;
 let upgrade4Interval = null;
@@ -32,10 +32,10 @@ let upgrade1Cena = 10;
 let upgrade2Cena = 100;
 let upgrade3Cena = 1100;
 let upgrade4Cena = 12000;
-let upgrade5cena = 130000;
-let upgrade6cena = 1500000;
-let upgrade7cena = 22000000;
-let upgrade8cena = 330000000;
+let upgrade5Cena = 130000;
+let upgrade6Cena = 1500000;
+let upgrade7Cena = 22000000;
+let upgrade8Cena = 330000000;
 
 //init Plavouci okno
 function plavouciOkno(button, getText) {
@@ -76,8 +76,8 @@ const zobrazIQps = document.getElementById('iqps');
 
 // Funkce pro výpočet IQps
 function aktualizujIQps() {
-    const iqps = (1 * upgrade2Pocet) + (5 * upgrade3Pocet) + (50 * upgrade4Pocet);
-    zobrazIQps.textContent = `${iqps.toFixed(1)} IQ/s`;
+    const iqps = (1 * upgrade2Pocet) + (5 * upgrade3Pocet) + (50 * upgrade4Pocet) + (275.0 * upgrade5Pocet) + (1500.0 * upgrade6Pocet) + (8250.0 * upgrade7Pocet) + (45000.0 * upgrade8Pocet);
+zobrazIQps.textContent = `${new Intl.NumberFormat('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(iqps)} IQ/s`;
 }
 setInterval(aktualizujIQps, 1000);
 
@@ -86,7 +86,7 @@ klikButton.addEventListener('click', () => {
     skoreIQ += hodnotaKliku;
     celkoveNasbiraneIQ += hodnotaKliku;
     upgrade1TotalIQ += hodnotaKliku;
-    zobrazSkore.textContent = skoreIQ.toFixed(0);
+    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
 });
 
 // upgrade #1
@@ -96,7 +96,7 @@ upgrade1button.addEventListener('click', () => {
         hodnotaKliku *= 1.001;
         upgrade1Cena *= 1.05;
         upgrade1Pocet++;
-        zobrazSkore.textContent = skoreIQ.toFixed(0);
+        zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade1lvl').textContent = `LVL ${upgrade1Pocet}`;
         document.getElementById('upgrade1CenaAktualizovana').textContent = upgrade1Cena.toFixed(0);
     }
@@ -115,7 +115,7 @@ upgrade2button.addEventListener('click', () => {
         skoreIQ -= upgrade2Cena;
         upgrade2Cena *= 1.10;
         upgrade2Pocet++;
-        zobrazSkore.textContent = skoreIQ.toFixed(0);
+        zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade2lvl').textContent = `LVL ${upgrade2Pocet}`;
         document.getElementById('upgrade2CenaAktualizovana').textContent = upgrade2Cena.toFixed(0);
         aktualizujIQps();
@@ -135,7 +135,7 @@ upgrade3button.addEventListener('click', () => {
         skoreIQ -= upgrade3Cena;
         upgrade3Cena *= 1.10;
         upgrade3Pocet++;
-        zobrazSkore.textContent = skoreIQ.toFixed(0);
+        zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade3lvl').textContent = `LVL ${upgrade3Pocet}`;
         document.getElementById('upgrade3CenaAktualizovana').textContent = upgrade3Cena.toFixed(0);
         aktualizujIQps();
@@ -155,7 +155,7 @@ upgrade4button.addEventListener('click', () => {
         skoreIQ -= upgrade4Cena;
         upgrade4Cena *= 1.10;
         upgrade4Pocet++;
-        zobrazSkore.textContent = skoreIQ.toFixed(0);
+        zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade4lvl').textContent = `LVL ${upgrade4Pocet}`;
         document.getElementById('upgrade4CenaAktualizovana').textContent = upgrade4Cena.toFixed(0);
         aktualizujIQps();
@@ -169,6 +169,86 @@ Cloudová výpočetní síla vytváří ${(50.0 * upgrade4Pocet).toFixed(2)} IQp
 Cloudová výpočetní síla zatím vytvořila ${upgrade4TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade4TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového množství IQ.`);
 
+//upgrade#5
+upgrade5button.addEventListener('click',()=>{
+    if (skoreIQ>=upgrade5Cena){
+        skoreIQ-=upgrade5Cena;
+        upgrade5Cena *= 1.10;
+        upgrade5Pocet++;
+        zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
+        document.getElementById('upgrade5lvl').textContent= `LVL ${upgrade5Pocet}`;
+        document.getElementById('upgrade5CenaAktualizovana').textContent=upgrade5Cena.toFixed(0);
+        aktualizujIQps();
+    }
+});
+plavouciOkno(upgrade5button, ()=> `Overclock mozku
+
+<i>"Troška elektrického proudu zrychlí CPU a co tvůj mozek?"</i>
+
+Overclock mozku vytváří ${(275.0 * upgrade5Pocet).toFixed(2)} IQps, což je ${((275*upgrade5Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet) + (50*upgrade4Pocet)+(275*upgrade5Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+Overclock mozku zatím vytvořil ${upgrade5TotalIQ.toFixed(0)} IQ.
+Což je ${(upgrade5TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
+
+//upgrade#6
+upgrade6button.addEventListener('click',()=>{
+    if (skoreIQ>=upgrade6Cena){
+        skoreIQ-=upgrade6Cena;
+        upgrade6Cena *= 1.10;
+        upgrade6Pocet++;
+        zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
+        document.getElementById('upgrade6lvl').textContent= `LVL ${upgrade6Pocet}`;
+        document.getElementById('upgrade6CenaAktualizovana').textContent=upgrade6Cena.toFixed(0);
+        aktualizujIQps();
+    }
+});
+plavouciOkno(upgrade6button, ()=> `REDACTED
+
+<i>REDACTED</i>
+
+REDACTED vytváří ${(1500.0 * upgrade6Pocet).toFixed(2)} IQps, což je ${((1500*upgrade6Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+REDACTED zatím vytvořila ${upgrade6TotalIQ.toFixed(0)} IQ.
+Což je ${(upgrade6TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
+
+//upgrade#7
+upgrade7button.addEventListener('click',()=>{
+    if (skoreIQ>=upgrade7Cena){
+        skoreIQ-=upgrade7Cena;
+        upgrade7Cena *= 1.10;
+        upgrade7Pocet++;
+        zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
+        document.getElementById('upgrade7lvl').textContent= `LVL ${upgrade7Pocet}`;
+        document.getElementById('upgrade7CenaAktualizovana').textContent=upgrade7Cena.toFixed(0);
+        aktualizujIQps();
+    }
+});
+plavouciOkno(upgrade7button, ()=> `REDACTED
+
+<i>REDACTED</i>
+
+REDACTED vytváří ${(8250.0 * upgrade7Pocet).toFixed(2)} IQps, což je ${((8250*upgrade7Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)+(8250*upgrade7Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+REDACTED zatím vytvořila ${upgrade7TotalIQ.toFixed(0)} IQ.
+Což je ${(upgrade7TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
+
+//upgrade#8
+upgrade8button.addEventListener('click',()=>{
+    if (skoreIQ>=upgrade8Cena){
+        skoreIQ-=upgrade8Cena;
+        upgrade8Cena *= 1.10;
+        upgrade8Pocet++;
+        zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
+        document.getElementById('upgrade8lvl').textContent= `LVL ${upgrade8Pocet}`;
+        document.getElementById('upgrade8CenaAktualizovana').textContent=upgrade8Cena.toFixed(0);
+        aktualizujIQps();
+    }
+});
+plavouciOkno(upgrade8button, ()=> `REDACTED
+
+<i>REDACTED</i>
+
+REDACTED vytváří ${(45000.0 * upgrade8Pocet).toFixed(2)} IQps, což je ${((45000*upgrade8Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)+(8250*upgrade7Pocet)+(45000*upgrade8Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+REDACTED zatím vytvořila ${upgrade8TotalIQ.toFixed(0)} IQ.
+Což je ${(upgrade8TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
+
 // Automatické přidávání bodů za sekundu
 setInterval(() => {
     let bodyZaSekundu = (1.0 * upgrade2Pocet) + (5.0 * upgrade3Pocet) + (50.0 * upgrade4Pocet) + (275.0 * upgrade5Pocet) + (1500.0 * upgrade6Pocet) + (8250.0 * upgrade7Pocet) + (45000.0 * upgrade8Pocet);
@@ -181,7 +261,7 @@ setInterval(() => {
     upgrade6TotalIQ += (1500.0 * upgrade6Pocet);
     upgrade7TotalIQ += (8250.0 * upgrade7Pocet);
     upgrade8TotalIQ += (45000.0 * upgrade8Pocet);
-    zobrazSkore.textContent = skoreIQ.toFixed(0);
+    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
 }, 1000);
 
 // Aktualizace ukazatele IQ za sekundu

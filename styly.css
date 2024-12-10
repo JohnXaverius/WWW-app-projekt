@@ -105,6 +105,10 @@ body {
     }
 
 /*NASTAVENI SLOUPCE UPGRADE*/
+.hidden{
+    visibility: hidden;
+}
+
 #sloupec-upgrade{
     margin: 0 10px;
     width: 40%;
