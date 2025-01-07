@@ -27,7 +27,6 @@ let upgrade7TotalIQ = 0;
 let upgrade8TotalIQ = 0;
 
 // init UPGRADE COST
-// test
 let upgrade1Cena = 10;
 let upgrade2Cena = 100;
 let upgrade3Cena = 1100;
@@ -73,6 +72,83 @@ const upgrade7button = document.getElementById('upgrade7');
 const upgrade8button = document.getElementById('upgrade8');
 const zobrazSkore = document.getElementById('zobrazSkore');
 const zobrazIQps = document.getElementById('iqps');
+const resetButton = document.getElementById('resetovaniStatistik');
+const saveButton = document.getElementById('ulozitStatistiku');
+
+// blok pro ukládání+načítání do a z localStorage, resetování hry a uloženého progresu
+function ulozitStavHry() {
+    const stavHry = {
+        skoreIQ: skoreIQ,
+        celkoveNasbiraneIQ: celkoveNasbiraneIQ,
+        hodnotaKliku: hodnotaKliku,
+        upgrady: {
+            upgrade1: { level: upgrade1Pocet, totalIQ: upgrade1TotalIQ },
+            upgrade2: { level: upgrade2Pocet, totalIQ: upgrade2TotalIQ },
+            upgrade3: { level: upgrade3Pocet, totalIQ: upgrade3TotalIQ },
+            upgrade4: { level: upgrade4Pocet, totalIQ: upgrade4TotalIQ },
+            upgrade5: { level: upgrade5Pocet, totalIQ: upgrade5TotalIQ },
+            upgrade6: { level: upgrade6Pocet, totalIQ: upgrade6TotalIQ },
+            upgrade7: { level: upgrade7Pocet, totalIQ: upgrade7TotalIQ },
+            upgrade8: { level: upgrade8Pocet, totalIQ: upgrade8TotalIQ }
+        }
+    };
+
+    localStorage.setItem('stavHry', JSON.stringify(stavHry));
+    console.log("Stav hry uložen.");
+}
+
+function vypocetCenyUpgradu(zakladniCena, level, koeficient = 1.10) {
+    return zakladniCena * Math.pow(koeficient, level);
+}
+function nacistStavHry() {
+    const ulozenyStav = localStorage.getItem('stavHry');
+    if (ulozenyStav) {
+        const stavHry = JSON.parse(ulozenyStav);
+
+        skoreIQ = stavHry.skoreIQ;
+        celkoveNasbiraneIQ = stavHry.celkoveNasbiraneIQ;
+        hodnotaKliku = stavHry.hodnotaKliku;
+        upgrade1Pocet = stavHry.upgrady.upgrade1.level;
+        upgrade1TotalIQ = stavHry.upgrady.upgrade1.totalIQ;
+        upgrade1Cena = vypocetCenyUpgradu(10, upgrade1Pocet);
+        upgrade2Pocet = stavHry.upgrady.upgrade2.level;
+        upgrade2TotalIQ = stavHry.upgrady.upgrade2.totalIQ;
+        upgrade2Cena = vypocetCenyUpgradu(100, upgrade2Pocet);
+        upgrade3Pocet = stavHry.upgrady.upgrade3.level;
+        upgrade3TotalIQ = stavHry.upgrady.upgrade3.totalIQ;
+        upgrade3Cena = vypocetCenyUpgradu(1100, upgrade3Pocet);
+        upgrade4Pocet = stavHry.upgrady.upgrade4.level;
+        upgrade4TotalIQ = stavHry.upgrady.upgrade4.totalIQ;
+        upgrade4Cena = vypocetCenyUpgradu(12000, upgrade4Pocet);
+        upgrade5Pocet = stavHry.upgrady.upgrade5.level;
+        upgrade5TotalIQ = stavHry.upgrady.upgrade5.totalIQ;
+        upgrade5Cena = vypocetCenyUpgradu(130000, upgrade5Pocet);
+        upgrade6Pocet = stavHry.upgrady.upgrade6.level;
+        upgrade6TotalIQ = stavHry.upgrady.upgrade6.totalIQ;
+        upgrade6Cena = vypocetCenyUpgradu(1500000, upgrade6Pocet);
+        upgrade7Pocet = stavHry.upgrady.upgrade7.level;
+        upgrade7TotalIQ = stavHry.upgrady.upgrade7.totalIQ;
+        upgrade7Cena = vypocetCenyUpgradu(22000000, upgrade7Pocet);
+        upgrade8Pocet = stavHry.upgrady.upgrade8.level;
+        upgrade8TotalIQ = stavHry.upgrady.upgrade8.totalIQ;
+        upgrade8Cena = vypocetCenyUpgradu(330000000, upgrade8Pocet);
+    }
+}
+
+setInterval(() => {
+    ulozitStavHry();
+    console.log("Stav hry uložen.");
+}, 5000);
+
+saveButton.addEventListener('click',()=>{
+    ulozitStavHry();
+    console.log("Stav hry uložen.");
+});
+
+resetButton.addEventListener('click', ()=>{
+    localStorage.removeItem('stavHry');
+    location.reload();
+});
 
 // Funkce pro výpočet IQps
 function aktualizujIQps() {
@@ -94,11 +170,11 @@ upgrade1button.addEventListener('click', () => {
     if (skoreIQ >= upgrade1Cena) {
         skoreIQ -= upgrade1Cena;
         hodnotaKliku *= 1.001;
-        upgrade1Cena *= 1.05;
         upgrade1Pocet++;
+        upgrade1Cena = vypocetCenyUpgradu(10, upgrade1Pocet);
         zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade1lvl').textContent = `LVL ${upgrade1Pocet}`;
-        document.getElementById('upgrade1CenaAktualizovana').textContent = upgrade1Cena.toFixed(0);
+        document.getElementById('upgrade1CenaAktualizovana').textContent = Number(upgrade1Cena.toFixed(0)).toLocaleString();
     }
 });
 plavouciOkno(upgrade1button, () => `Neuromotorický upgrade
@@ -113,11 +189,11 @@ Což je ${(upgrade1TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového
 upgrade2button.addEventListener('click', () => {
     if (skoreIQ >= upgrade2Cena) {
         skoreIQ -= upgrade2Cena;
-        upgrade2Cena *= 1.10;
         upgrade2Pocet++;
+        upgrade2Cena = vypocetCenyUpgradu(100, upgrade2Pocet);
         zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade2lvl').textContent = `LVL ${upgrade2Pocet}`;
-        document.getElementById('upgrade2CenaAktualizovana').textContent = upgrade2Cena.toFixed(0);
+        document.getElementById('upgrade2CenaAktualizovana').textContent = Number(upgrade2Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
@@ -133,11 +209,11 @@ Což je ${(upgrade2TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového
 upgrade3button.addEventListener('click', () => {
     if (skoreIQ >= upgrade3Cena) {
         skoreIQ -= upgrade3Cena;
-        upgrade3Cena *= 1.10;
         upgrade3Pocet++;
+        upgrade3Cena = vypocetCenyUpgradu(1100, upgrade3Pocet);
         zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade3lvl').textContent = `LVL ${upgrade3Pocet}`;
-        document.getElementById('upgrade3CenaAktualizovana').textContent = upgrade3Cena.toFixed(0);
+        document.getElementById('upgrade3CenaAktualizovana').textContent = Number(upgrade3Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
@@ -153,11 +229,11 @@ Což je ${(upgrade3TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového
 upgrade4button.addEventListener('click', () => {
     if (skoreIQ >= upgrade4Cena) {
         skoreIQ -= upgrade4Cena;
-        upgrade4Cena *= 1.10;
         upgrade4Pocet++;
+        upgrade4Cena = vypocetCenyUpgradu(12000, upgrade4Pocet);
         zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade4lvl').textContent = `LVL ${upgrade4Pocet}`;
-        document.getElementById('upgrade4CenaAktualizovana').textContent = upgrade4Cena.toFixed(0);
+        document.getElementById('upgrade4CenaAktualizovana').textContent = Number(upgrade4Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
@@ -173,11 +249,11 @@ Což je ${(upgrade4TotalIQ / celkoveNasbiraneIQ * 100).toFixed(1)}% z celkového
 upgrade5button.addEventListener('click',()=>{
     if (skoreIQ>=upgrade5Cena){
         skoreIQ-=upgrade5Cena;
-        upgrade5Cena *= 1.10;
         upgrade5Pocet++;
+        upgrade5Cena = vypocetCenyUpgradu(130000, upgrade5Pocet);
         zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade5lvl').textContent= `LVL ${upgrade5Pocet}`;
-        document.getElementById('upgrade5CenaAktualizovana').textContent=upgrade5Cena.toFixed(0);
+        document.getElementById('upgrade5CenaAktualizovana').textContent = Number(upgrade5Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
@@ -193,60 +269,60 @@ Což je ${(upgrade5TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového mn
 upgrade6button.addEventListener('click',()=>{
     if (skoreIQ>=upgrade6Cena){
         skoreIQ-=upgrade6Cena;
-        upgrade6Cena *= 1.10;
         upgrade6Pocet++;
+        upgrade6Cena = vypocetCenyUpgradu(1500000, upgrade6Pocet);
         zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade6lvl').textContent= `LVL ${upgrade6Pocet}`;
-        document.getElementById('upgrade6CenaAktualizovana').textContent=upgrade6Cena.toFixed(0);
+        document.getElementById('upgrade6CenaAktualizovana').textContent = Number(upgrade6Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
-plavouciOkno(upgrade6button, ()=> `REDACTED
+plavouciOkno(upgrade6button, ()=> `Genetická modifikace neuronů
 
-<i>REDACTED</i>
+<i>"Co kdyby neuron uměl víc než doteď?"</i>
 
-REDACTED vytváří ${(1500.0 * upgrade6Pocet).toFixed(2)} IQps, což je ${((1500*upgrade6Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
-REDACTED zatím vytvořila ${upgrade6TotalIQ.toFixed(0)} IQ.
+Genetická modifikace neuronů vytváří ${(1500.0 * upgrade6Pocet).toFixed(2)} IQps, což je ${((1500*upgrade6Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+Genetická modifikace neuronů zatím vytvořila ${upgrade6TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade6TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
 
 //upgrade#7
 upgrade7button.addEventListener('click',()=>{
     if (skoreIQ>=upgrade7Cena){
         skoreIQ-=upgrade7Cena;
-        upgrade7Cena *= 1.10;
         upgrade7Pocet++;
+        upgrade7Cena = vypocetCenyUpgradu(22000000, upgrade7Pocet);
         zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade7lvl').textContent= `LVL ${upgrade7Pocet}`;
-        document.getElementById('upgrade7CenaAktualizovana').textContent=upgrade7Cena.toFixed(0);
+        document.getElementById('upgrade7CenaAktualizovana').textContent = Number(upgrade7Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
-plavouciOkno(upgrade7button, ()=> `REDACTED
+plavouciOkno(upgrade7button, ()=> `Synaptický upgrade
 
-<i>REDACTED</i>
+<i>"Optická vlákna místo synapsí?"</i>
 
-REDACTED vytváří ${(8250.0 * upgrade7Pocet).toFixed(2)} IQps, což je ${((8250*upgrade7Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)+(8250*upgrade7Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
-REDACTED zatím vytvořila ${upgrade7TotalIQ.toFixed(0)} IQ.
+Synaptický upgrade vytváří ${(8250.0 * upgrade7Pocet).toFixed(2)} IQps, což je ${((8250*upgrade7Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)+(8250*upgrade7Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+Synaptický upgrade zatím vytvořil ${upgrade7TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade7TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
 
 //upgrade#8
 upgrade8button.addEventListener('click',()=>{
     if (skoreIQ>=upgrade8Cena){
         skoreIQ-=upgrade8Cena;
-        upgrade8Cena *= 1.10;
         upgrade8Pocet++;
+        upgrade8Cena = vypocetCenyUpgradu(330000000, upgrade8Pocet);
         zobrazSkore.textContent=Number(skoreIQ.toFixed(0)).toLocaleString();
         document.getElementById('upgrade8lvl').textContent= `LVL ${upgrade8Pocet}`;
-        document.getElementById('upgrade8CenaAktualizovana').textContent=upgrade8Cena.toFixed(0);
+        document.getElementById('upgrade8CenaAktualizovana').textContent = Number(upgrade8Cena.toFixed(0)).toLocaleString();
         aktualizujIQps();
     }
 });
-plavouciOkno(upgrade8button, ()=> `REDACTED
+plavouciOkno(upgrade8button, ()=> `Pozitronové vylepšení
 
-<i>REDACTED</i>
+<i>"Nahrazení kritckých částí mozků pozitronovými obvody."</i>
 
-REDACTED vytváří ${(45000.0 * upgrade8Pocet).toFixed(2)} IQps, což je ${((45000*upgrade8Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)+(8250*upgrade7Pocet)+(45000*upgrade8Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
-REDACTED zatím vytvořila ${upgrade8TotalIQ.toFixed(0)} IQ.
+Pozitronové vylepšení vytváří ${(45000.0 * upgrade8Pocet).toFixed(2)} IQps, což je ${((45000*upgrade8Pocet/((1*upgrade2Pocet)+(5*upgrade3Pocet)+(50*upgrade4Pocet)+(275*upgrade5Pocet)+(1500*upgrade6Pocet)+(8250*upgrade7Pocet)+(45000*upgrade8Pocet)))*100).toFixed(1)}% z celkového počtu IQps.
+Pozitronové vylepšení zatím vytvořila ${upgrade8TotalIQ.toFixed(0)} IQ.
 Což je ${(upgrade8TotalIQ/celkoveNasbiraneIQ *100).toFixed(1)}% z celkového množství IQ.`);
 
 // Automatické přidávání bodů za sekundu
@@ -266,3 +342,29 @@ setInterval(() => {
 
 // Aktualizace ukazatele IQ za sekundu
 setInterval(aktualizujIQps, 1000);
+
+function aktualizovatZobrazeniUpgradu() {
+    document.getElementById('upgrade1lvl').textContent = `LVL ${upgrade1Pocet}`;
+    document.getElementById('upgrade1CenaAktualizovana').textContent = Number(upgrade1Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade2lvl').textContent = `LVL ${upgrade2Pocet}`;
+    document.getElementById('upgrade2CenaAktualizovana').textContent = Number(upgrade2Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade3lvl').textContent = `LVL ${upgrade3Pocet}`;
+    document.getElementById('upgrade3CenaAktualizovana').textContent = Number(upgrade3Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade4lvl').textContent = `LVL ${upgrade4Pocet}`;
+    document.getElementById('upgrade4CenaAktualizovana').textContent = Number(upgrade4Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade5lvl').textContent = `LVL ${upgrade5Pocet}`;
+    document.getElementById('upgrade5CenaAktualizovana').textContent = Number(upgrade5Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade6lvl').textContent = `LVL ${upgrade6Pocet}`;
+    document.getElementById('upgrade6CenaAktualizovana').textContent = Number(upgrade6Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade7lvl').textContent = `LVL ${upgrade7Pocet}`;
+    document.getElementById('upgrade7CenaAktualizovana').textContent = Number(upgrade7Cena.toFixed(0)).toLocaleString();
+    document.getElementById('upgrade8lvl').textContent = `LVL ${upgrade8Pocet}`;
+    document.getElementById('upgrade8CenaAktualizovana').textContent = Number(upgrade8Cena.toFixed(0)).toLocaleString();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    nacistStavHry();
+    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
+    aktualizovatZobrazeniUpgradu();
+    aktualizujIQps();
+});
