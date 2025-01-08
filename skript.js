@@ -1,7 +1,7 @@
 // init VAR
 let skoreIQ = 0;
 let celkoveNasbiraneIQ = 0;
-let hodnotaKliku = 1;
+let hodnotaKliku = 1000;
 let upgrade2Interval = null;
 let upgrade3Interval = null;
 let upgrade4Interval = null;
@@ -205,7 +205,7 @@ klikButton.addEventListener("click", () => {
 upgrade1button.addEventListener("click", () => {
   if (skoreIQ >= upgrade1Cena) {
     skoreIQ -= upgrade1Cena;
-    hodnotaKliku *= 1.001;
+    hodnotaKliku *= 1.01;
     upgrade1Pocet++;
     upgrade1Cena = vypocetCenyUpgradu(10, upgrade1Pocet);
     zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
