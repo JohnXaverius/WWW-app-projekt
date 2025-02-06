@@ -319,3 +319,8 @@ body {
     display: none;
   }
 }
+
+#verzovnik{
+  position: absolute;
+  bottom: 50px;
+}

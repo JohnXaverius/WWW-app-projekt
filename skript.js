@@ -539,3 +539,11 @@ document.addEventListener("DOMContentLoaded", () => {
   aktualizovatZobrazeniUpgradu();
   aktualizujIQps();
 });
+
+//---statisticka sekce---
+// Přidání statistik do HTML
+const statIQ = document.getElementById("statCelkemIQ");
+const statKliky = document.getElementById("statKliky");
+const statCas = document.getElementById("statCasHrani");
+const statMaxIQps = document.getElementById("statMaxIQps");
+const statUpgrady = document.getElementById("statUpgrady");
