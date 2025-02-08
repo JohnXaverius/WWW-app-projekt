@@ -57,6 +57,11 @@ constructor() {
   this.priKliknuti();
   this.nacistStavHry();
   this.aktualizujIQSkore();
+  this.intervalUlozeni = null;
+  this.casDoUlozeni = 60;
+  this.pocetKliknuti = 0;
+  this.casHrani = 0;
+  this.maxIQps = 0;
 }
 
 definujUpgrady() {
@@ -67,11 +72,11 @@ definujUpgrady() {
       iqZaSekundu: 0,
       nasobic: 1.01,
       tooltip:
-        () => `Neuromotorický upgrade<br><i>"Zrychluje nervové dráhy a tím i efektivitu klikání."</i><br><br>
+        () => `Neuromotorický upgrade<br><i>"Zrychluje nervové dráhy a tím i efektivitu klikání."</i><br>
           Neuromotorický upgrade umožní získat ${Hrac.instance.hodnotaKliku.toFixed(
             2
-          )} IQ jedním klikem.<br>
-          Neuromotorický upgrade zatím vygeneroval ${this.upgrades[0].totalIQ.toFixed(0)} IQ<br>
+          )} IQ jedním klikem.
+          Neuromotorický upgrade zatím vygeneroval ${this.upgrades[0].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[0].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -82,16 +87,10 @@ definujUpgrady() {
       iqZaSekundu: 1,
       nasobic: 1,
       tooltip:
-        () => `Dopaminová pumpa<br><i>"Automaticky generuje body IQ za sekundu."</i><br><br>
-          Dopaminová pumpa vytváří ${this.upgrades[1].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[1].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Dopaminová pumpa zatím vytvořila ${this.upgrades[1].totalIQ.toFixed(0)} IQ.<br>
-          Což je ${(
-            (this.upgrades[1].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
-          ).toFixed(1)}% z celkového množství IQ.`,
+        () => `Dopaminová pumpa<br><i>"Automaticky generuje body IQ za sekundu."</i><br>
+          Dopaminová pumpa vytváří ${this.upgrades[1].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[1].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Dopaminová pumpa zatím vytvořila ${this.upgrades[1].totalIQ.toFixed(0)} IQ.
+          Což je ${((this.upgrades[1].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0).toFixed(1)}% z celkového množství IQ.`,
     },
     {
       id: "upgrade3",
@@ -99,13 +98,9 @@ definujUpgrady() {
       iqZaSekundu: 5,
       nasobic: 1,
       tooltip:
-        () => `Bioprocesory<br><i>"Elon říkal, že to půjde."</i><br><br>
-          Bioprocesory vytváří ${this.upgrades[2].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[2].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Bioprocesory zatím vytvořily ${this.upgrades[2].totalIQ.toFixed(0)} IQ.<br>
+        () => `Bioprocesory<br><i>"Elon říkal, že to půjde."</i><br>
+          Bioprocesory vytváří ${this.upgrades[2].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[2].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Bioprocesory zatím vytvořily ${this.upgrades[2].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[2].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -116,13 +111,9 @@ definujUpgrady() {
       iqZaSekundu: 50,
       nasobic: 1,
       tooltip:
-        () => `Cloudová výpočetní síla<br><i>"Proč k tomu nepoužít další mozky?"</i><br><br>
-          Cloudová výpočetní síla vytváří ${this.upgrades[3].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[3].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Cloudová výpočetní síla zatím vytvořila ${this.upgrades[3].totalIQ.toFixed(0)} IQ.<br>
+        () => `Cloudová výpočetní síla<br><i>"Proč k tomu nepoužít další mozky?"</i>
+          Cloudová výpočetní síla vytváří ${this.upgrades[3].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[3].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Cloudová výpočetní síla zatím vytvořila ${this.upgrades[3].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[3].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -133,13 +124,9 @@ definujUpgrady() {
       iqZaSekundu: 275,
       nasobic: 1,
       tooltip:
-        () => `Overclock mozku<br><i>"Troška elektrického proudu zrychlí CPU a co tvůj mozek?"</i><br><br>
-          Overclock mozku vytváří ${this.upgrades[4].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[4].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Overclock mozku zatím vytvořil ${this.upgrades[4].totalIQ.toFixed(0)} IQ.<br>
+        () => `Overclock mozku<br><i>"Troška elektrického proudu zrychlí CPU a co tvůj mozek?"</i><br>
+          Overclock mozku vytváří ${this.upgrades[4].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[4].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Overclock mozku zatím vytvořil ${this.upgrades[4].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[4].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -150,13 +137,9 @@ definujUpgrady() {
       iqZaSekundu: 1500,
       nasobic: 1,
       tooltip:
-        () => `Genetická modifikace neuronů<br><i>"Co kdyby neuron uměl víc než doteď?"</i><br><br>
-          Genetická modifikace neuronů vytváří ${this.upgrades[5].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[5].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Genetická modifikace neuronů zatím vytvořila ${this.upgrades[5].totalIQ.toFixed(0)} IQ.<br>
+        () => `Genetická modifikace neuronů<br><i>"Co kdyby neuron uměl víc než doteď?"</i><br>
+          Genetická modifikace neuronů vytváří ${this.upgrades[5].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[5].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Genetická modifikace neuronů zatím vytvořila ${this.upgrades[5].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[5].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -167,13 +150,9 @@ definujUpgrady() {
       iqZaSekundu: 8250,
       nasobic: 1,
       tooltip:
-        () => `Synaptický upgrade<br><i>"Optická vlákna místo synapsí?"</i><br><br>
-          Synaptický upgrade vytváří ${this.upgrades[6].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[6].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Synaptický upgrade zatím vytvořil ${this.upgrades[6].totalIQ.toFixed(0)} IQ.<br>
+        () => `Synaptický upgrade<br><i>"Optická vlákna místo synapsí?"</i><br>
+          Synaptický upgrade vytváří ${this.upgrades[6].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[6].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Synaptický upgrade zatím vytvořil ${this.upgrades[6].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[6].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -184,13 +163,9 @@ definujUpgrady() {
       iqZaSekundu: 45000,
       nasobic: 1,
       tooltip:
-        () => `Pozitronové vylepšení<br><i>"Nahrazení kritckých částí mozků pozitronovými obvody."</i><br><br>
-          Pozitronové vylepšení vytváří ${this.upgrades[7].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
-          ${(
-            (this.upgrades[7].spocitejIQProdukci() / this.getCelkoveIQ()) *
-              100 || 0
-          ).toFixed(1)}% z celkového počtu IQ/s.<br>
-          Pozitronové vylepšení zatím vytvořilo ${this.upgrades[7].totalIQ.toFixed(0)} IQ.<br>
+        () => `Pozitronové vylepšení<br><i>"Nahrazení kritckých částí mozků pozitronovými obvody."</i><br>
+          Pozitronové vylepšení vytváří ${this.upgrades[7].spocitejIQProdukci().toFixed(2)} IQ/s, což je ${((this.upgrades[7].spocitejIQProdukci() / this.getCelkoveIQ()) *100 || 0).toFixed(1)}% z celkového počtu IQ/s.
+          Pozitronové vylepšení zatím vytvořilo ${this.upgrades[7].totalIQ.toFixed(0)} IQ.
           Což je ${(
             (this.upgrades[7].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
           ).toFixed(1)}% z celkového množství IQ.`,
@@ -214,6 +189,8 @@ priKliknuti() {
     this.skoreIQ += this.hodnotaKliku;
     this.celkoveNasbiraneIQ += this.hodnotaKliku;
     this.upgrades[0].totalIQ += this.hodnotaKliku;
+    this.pocetKliknuti++;
+    this.aktualizujStatistiky();
     this.aktualizujIQps();
   });
 
@@ -235,6 +212,7 @@ aktualizujIQSkore() {
       const IQ = this.getCelkoveIQ();
       this.skoreIQ += IQ;
       this.celkoveNasbiraneIQ += IQ;
+      this.casHrani++;
 
       this.upgrades.forEach((upgrade, index) => {
         if (index > 0) {
@@ -242,14 +220,27 @@ aktualizujIQSkore() {
         }
       });
 
+      const aktualniIQps = this.getCelkoveIQ();
+      if (aktualniIQps > this.maxIQps) {
+        this.maxIQps = aktualniIQps;
+      }
+      this.aktualizujStatistiky();
       this.aktualizujIQps();
     }, 1000)
   );
 
   this.intervaly.push(setInterval(() => {
       this.ulozitStavHry();
+      this.casDoUlozeni = 60;
       console.log("Stav hry uložen automaticky po 60 sekundách.");
   }, 60000));
+
+  this.intervaly.push(
+    setInterval(() => {
+      this.casDoUlozeni--;
+      document.getElementById("casDoUlozeni").textContent = `${this.casDoUlozeni} s`;
+    }, 1000)
+  );
 }
 
 getCelkoveIQ() {
@@ -274,13 +265,40 @@ aktualizujIQps() {
       Number(upgrade.aktualniCena.toFixed(0)).toLocaleString();
   });
 }
+
+aktualizujStatistiky() {
+  // Celkově získané IQ
+  document.getElementById("statCelkemIQ").textContent = 
+    Number(this.celkoveNasbiraneIQ.toFixed(0)).toLocaleString();
+
+  // Počet kliknutí
+  document.getElementById("statKliky").textContent = 
+    this.pocetKliknuti.toLocaleString();
+
+  // Celkový čas hraní
+  const hodiny = Math.floor(this.casHrani / 3600);
+  const minuty = Math.floor((this.casHrani % 3600) / 60);
+  const sekundy = this.casHrani % 60;
+  document.getElementById("statCasHrani").textContent = 
+    `${hodiny > 0 ? `${hodiny}h ` : ""}${minuty > 0 ? `${minuty}m ` : ""}${sekundy}s`;
+
+  // Nejvyšší dosažené IQ/s
+  document.getElementById("statMaxIQps").textContent = 
+    Number(this.maxIQps.toFixed(0)).toLocaleString();
+}
+
 // blok pro ukládání+načítání do a z localStorage, resetování hry a uloženého progresu
 //ulozeni
 async ulozitStavHry() {
+  this.casDoUlozeni = 60;
+  document.getElementById("casDoUlozeni").textContent = `${this.casDoUlozeni} s`;
   const stavHry = {
     skoreIQ: this.skoreIQ,
     celkoveNasbiraneIQ: this.celkoveNasbiraneIQ,
     hodnotaKliku: this.hodnotaKliku,
+    pocetKliknuti: this.pocetKliknuti,
+    casHrani: this.casHrani,
+    maxIQps: this.maxIQps,
     upgrady: this.upgrades.map((upgrade) => ({
       level: upgrade.level,
       totalIQ: upgrade.totalIQ,
@@ -310,12 +328,16 @@ async nacistStavHry() {
       this.skoreIQ = stavHry.skoreIQ;
       this.celkoveNasbiraneIQ = stavHry.celkoveNasbiraneIQ;
       this.hodnotaKliku = stavHry.hodnotaKliku;
+      this.pocetKliknuti = stavHry.pocetKliknuti || 0;
+      this.casHrani = stavHry.casHrani || 0;
+      this.maxIQps = stavHry.maxIQps || 0;
 
       stavHry.upgrady.forEach((upgradeData, index) => {
         this.upgrades[index].level = upgradeData.level;
         this.upgrades[index].totalIQ = upgradeData.totalIQ;
         this.upgrades[index].aktualniCena = upgradeData.aktualniCena;
       });
+      this.aktualizujStatistiky();
     } else {
       console.error("Uložená data byla změněna nebo jsou poškozená.");
       alert("Uložená data byla změněna nebo jsou poškozená.");
@@ -323,6 +345,10 @@ async nacistStavHry() {
   } else {
     console.log("Žádný uložený stav nenalezen.");
   }
+  this.aktualizujIQps();
+
+  this.casDoUlozeni = 60;
+  document.getElementById("casDoUlozeni").textContent = `${this.casDoUlozeni} s`;
   this.aktualizujIQps();
 }
 }
@@ -335,21 +361,30 @@ return zakladniCena * Math.pow(koeficient, level);
 
 //init Plavouci okno
 function plavouciOkno(button, getText) {
-const okynko = document.createElement("div");
-okynko.className = "okynko";
-document.body.appendChild(okynko);
+  const okynko = document.createElement("div");
+  okynko.className = "okynko";
+  document.body.appendChild(okynko);
 
-button.addEventListener("mouseover", (e) => {
-  okynko.innerHTML = getText();
-  const buttonRect = button.getBoundingClientRect();
-  okynko.style.display = "block";
-  okynko.style.left = `${buttonRect.right + 30}px`;
-  okynko.style.top = `${buttonRect.top}px`;
-});
+  button.addEventListener("mouseover", (e) => {
+    okynko.innerHTML = getText();
+    okynko.style.display = "block";
+    const buttonRect = button.getBoundingClientRect();
+    const okynkoRect = okynko.getBoundingClientRect();
+    let leftPosition = buttonRect.right + 10;
+    if (leftPosition + okynkoRect.width > window.innerWidth) {
+      leftPosition = buttonRect.left - okynkoRect.width - 10;
+    }
+    let topPosition = buttonRect.top;
+    if (topPosition + okynkoRect.height > window.innerHeight) {
+      topPosition = window.innerHeight - okynkoRect.height - 10;
+    }
+    okynko.style.left = `${leftPosition}px`;
+    okynko.style.top = `${topPosition}px`;
+  });
 
-button.addEventListener("mouseout", () => {
-  okynko.style.display = "none";
-});
+  button.addEventListener("mouseout", () => {
+    okynko.style.display = "none";
+  });
 }
 
 //hashovaci funkce
