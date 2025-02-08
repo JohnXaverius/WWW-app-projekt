@@ -1,3 +1,4 @@
+//verze 0.4.3.0
 //třída pro definici kostry upgradu
 class Upgrade {
   constructor(id, zaklCena, iqZaSekundu, nasobic, generatorPlavoucihoOkna) {
