@@ -1,105 +1,291 @@
-// init VAR
-let skoreIQ = 0;
-let celkoveNasbiraneIQ = 0;
-let hodnotaKliku = 1000;
-let upgrade2Interval = null;
-let upgrade3Interval = null;
-let upgrade4Interval = null;
-let upgrade5Interval = null;
-let upgrade6Interval = null;
-let upgrade7Interval = null;
-let upgrade8Interval = null;
-let upgrade1Pocet = 0;
-let upgrade2Pocet = 0;
-let upgrade3Pocet = 0;
-let upgrade4Pocet = 0;
-let upgrade5Pocet = 0;
-let upgrade6Pocet = 0;
-let upgrade7Pocet = 0;
-let upgrade8Pocet = 0;
-let upgrade1TotalIQ = 0;
-let upgrade2TotalIQ = 0;
-let upgrade3TotalIQ = 0;
-let upgrade4TotalIQ = 0;
-let upgrade5TotalIQ = 0;
-let upgrade6TotalIQ = 0;
-let upgrade7TotalIQ = 0;
-let upgrade8TotalIQ = 0;
-
-// init UPGRADE COST
-let upgrade1Cena = 10;
-let upgrade2Cena = 100;
-let upgrade3Cena = 1100;
-let upgrade4Cena = 12000;
-let upgrade5Cena = 130000;
-let upgrade6Cena = 1500000;
-let upgrade7Cena = 22000000;
-let upgrade8Cena = 330000000;
-
-//init Plavouci okno
-function plavouciOkno(button, getText) {
-  const okynko = document.createElement("div");
-  okynko.className = "okynko";
-  document.body.appendChild(okynko);
-
-  button.addEventListener("mouseover", (e) => {
-    okynko.innerHTML = getText();
-    const buttonRect = button.getBoundingClientRect();
-    okynko.style.display = "block";
-    okynko.style.left = `${buttonRect.right + 30}px`;
-    okynko.style.top = `${buttonRect.top}px`;
-  });
-
-  button.addEventListener("mouseout", () => {
-    okynko.style.display = "none";
-  });
+//třída pro definici kostry upgradu
+class Upgrade {
+  constructor(id, zaklCena, iqZaSekundu, nasobic, generatorPlavoucihoOkna) {
+  this.id = id;
+  this.zaklCena = zaklCena;
+  this.aktualniCena = zaklCena;
+  this.level = 0;
+  this.totalIQ = 0;
+  this.iqZaSekundu = iqZaSekundu;
+  this.nasobic = nasobic;
+  this.button = document.getElementById(id);
+  this.generatorPlavoucihoOkna = generatorPlavoucihoOkna;
+  this.init();
 }
 
-//blokování označování myší
-document.addEventListener("mousedown", (event) => {
-  event.preventDefault();
-});
-
-// init konstanty
-const klikButton = document.getElementById("klik-button");
-const upgrade1button = document.getElementById("upgrade1");
-const upgrade2button = document.getElementById("upgrade2");
-const upgrade3button = document.getElementById("upgrade3");
-const upgrade4button = document.getElementById("upgrade4");
-const upgrade5button = document.getElementById("upgrade5");
-const upgrade6button = document.getElementById("upgrade6");
-const upgrade7button = document.getElementById("upgrade7");
-const upgrade8button = document.getElementById("upgrade8");
-const zobrazSkore = document.getElementById("zobrazSkore");
-const zobrazIQps = document.getElementById("iqps");
-const resetButton = document.getElementById("resetovaniStatistik");
-const saveButton = document.getElementById("ulozitStatistiku");
-
-//hashovaci funkce
-async function vytvorHash(dataString) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(dataString);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+init() {
+  this.vytvorPlavouciOkno();
+  this.button.addEventListener("click", () => this.buy());
 }
 
-// blok pro ukládání+načítání do a z localStorage, resetování hry a uloženého progresu
-async function ulozitStavHry() {
-  const stavHry = {
-    skoreIQ: skoreIQ,
-    celkoveNasbiraneIQ: celkoveNasbiraneIQ,
-    hodnotaKliku: hodnotaKliku,
-    upgrady: {
-      upgrade1: { level: upgrade1Pocet, totalIQ: upgrade1TotalIQ },
-      upgrade2: { level: upgrade2Pocet, totalIQ: upgrade2TotalIQ },
-      upgrade3: { level: upgrade3Pocet, totalIQ: upgrade3TotalIQ },
-      upgrade4: { level: upgrade4Pocet, totalIQ: upgrade4TotalIQ },
-      upgrade5: { level: upgrade5Pocet, totalIQ: upgrade5TotalIQ },
-      upgrade6: { level: upgrade6Pocet, totalIQ: upgrade6TotalIQ },
-      upgrade7: { level: upgrade7Pocet, totalIQ: upgrade7TotalIQ },
-      upgrade8: { level: upgrade8Pocet, totalIQ: upgrade8TotalIQ },
+vytvorPlavouciOkno() {
+  plavouciOkno(this.button, () => this.generatorPlavoucihoOkna());
+}
+
+buy() {
+  if (Hrac.instance.skoreIQ >= this.aktualniCena) {
+    Hrac.instance.skoreIQ -= this.aktualniCena;
+    this.level++;
+    this.aktualniCena = vypocetCenyUpgradu(this.zaklCena, this.level);
+
+    if (this.id === "upgrade1") {
+      Hrac.instance.hodnotaKliku *= this.nasobic;
+    }
+
+    Hrac.instance.aktualizujIQps();
+  }
+}
+
+spocitejIQProdukci() {
+  return this.level * this.iqZaSekundu;
+}
+}
+//třída pro hráče
+class Hrac {
+static instance = null;
+constructor() {
+  if (Hrac.instance) return Hrac.instance;
+  Hrac.instance = this;
+  //init VAR
+  this.skoreIQ = 0;
+  this.celkoveNasbiraneIQ = 0;
+  this.hodnotaKliku = 1000;
+  this.upgrades = [];
+  this.intervaly = [];
+  this.naposledUlozeno = Date.now();
+  this.definujUpgrady();
+  this.priKliknuti();
+  this.nacistStavHry();
+  this.aktualizujIQSkore();
+}
+
+definujUpgrady() {
+  const definiceUpgradu = [
+    {
+      id: "upgrade1",
+      zaklCena: 10,
+      iqZaSekundu: 0,
+      nasobic: 1.01,
+      tooltip:
+        () => `Neuromotorický upgrade<br><i>"Zrychluje nervové dráhy a tím i efektivitu klikání."</i><br><br>
+          Neuromotorický upgrade umožní získat ${Hrac.instance.hodnotaKliku.toFixed(
+            2
+          )} IQ jedním klikem.<br>
+          Neuromotorický upgrade zatím vygeneroval ${this.upgrades[0].totalIQ.toFixed(0)} IQ<br>
+          Což je ${(
+            (this.upgrades[0].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
     },
+    {
+      id: "upgrade2",
+      zaklCena: 100,
+      iqZaSekundu: 1,
+      nasobic: 1,
+      tooltip:
+        () => `Dopaminová pumpa<br><i>"Automaticky generuje body IQ za sekundu."</i><br><br>
+          Dopaminová pumpa vytváří ${this.upgrades[1].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[1].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Dopaminová pumpa zatím vytvořila ${this.upgrades[1].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[1].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    },
+    {
+      id: "upgrade3",
+      zaklCena: 1100,
+      iqZaSekundu: 5,
+      nasobic: 1,
+      tooltip:
+        () => `Bioprocesory<br><i>"Elon říkal, že to půjde."</i><br><br>
+          Bioprocesory vytváří ${this.upgrades[2].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[2].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Bioprocesory zatím vytvořily ${this.upgrades[2].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[2].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    },      
+    {
+      id: "upgrade4",
+      zaklCena: 12000,
+      iqZaSekundu: 50,
+      nasobic: 1,
+      tooltip:
+        () => `Cloudová výpočetní síla<br><i>"Proč k tomu nepoužít další mozky?"</i><br><br>
+          Cloudová výpočetní síla vytváří ${this.upgrades[3].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[3].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Cloudová výpočetní síla zatím vytvořila ${this.upgrades[3].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[3].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    },      
+    {
+      id: "upgrade5",
+      zaklCena: 130000,
+      iqZaSekundu: 275,
+      nasobic: 1,
+      tooltip:
+        () => `Overclock mozku<br><i>"Troška elektrického proudu zrychlí CPU a co tvůj mozek?"</i><br><br>
+          Overclock mozku vytváří ${this.upgrades[4].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[4].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Overclock mozku zatím vytvořil ${this.upgrades[4].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[4].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    },      
+    {
+      id: "upgrade6",
+      zaklCena: 1500000,
+      iqZaSekundu: 1500,
+      nasobic: 1,
+      tooltip:
+        () => `Genetická modifikace neuronů<br><i>"Co kdyby neuron uměl víc než doteď?"</i><br><br>
+          Genetická modifikace neuronů vytváří ${this.upgrades[5].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[5].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Genetická modifikace neuronů zatím vytvořila ${this.upgrades[5].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[5].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    },      
+    {
+      id: "upgrade7",
+      zaklCena: 22000000,
+      iqZaSekundu: 8250,
+      nasobic: 1,
+      tooltip:
+        () => `Synaptický upgrade<br><i>"Optická vlákna místo synapsí?"</i><br><br>
+          Synaptický upgrade vytváří ${this.upgrades[6].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[6].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Synaptický upgrade zatím vytvořil ${this.upgrades[6].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[6].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    },      
+    {
+      id: "upgrade8",
+      zaklCena: 330000000,
+      iqZaSekundu: 45000,
+      nasobic: 1,
+      tooltip:
+        () => `Pozitronové vylepšení<br><i>"Nahrazení kritckých částí mozků pozitronovými obvody."</i><br><br>
+          Pozitronové vylepšení vytváří ${this.upgrades[7].spocitejIQProdukci().toFixed(2)} IQ/s, což je<br>
+          ${(
+            (this.upgrades[7].spocitejIQProdukci() / this.getCelkoveIQ()) *
+              100 || 0
+          ).toFixed(1)}% z celkového počtu IQ/s.<br>
+          Pozitronové vylepšení zatím vytvořilo ${this.upgrades[7].totalIQ.toFixed(0)} IQ.<br>
+          Což je ${(
+            (this.upgrades[7].totalIQ / this.celkoveNasbiraneIQ) * 100 || 0
+          ).toFixed(1)}% z celkového množství IQ.`,
+    }
+  ];
+
+  this.upgrades = definiceUpgradu.map(
+    (config) =>
+      new Upgrade(
+        config.id,
+        config.zaklCena,
+        config.iqZaSekundu,
+        config.nasobic,
+        config.tooltip.bind(this)
+      )
+  );
+}
+// Když kliknu
+priKliknuti() {
+  document.getElementById("klik-button").addEventListener("click", () => {
+    this.skoreIQ += this.hodnotaKliku;
+    this.celkoveNasbiraneIQ += this.hodnotaKliku;
+    this.upgrades[0].totalIQ += this.hodnotaKliku;
+    this.aktualizujIQps();
+  });
+
+  document
+    .getElementById("resetovaniStatistik")
+    .addEventListener("click", () => {
+      localStorage.removeItem("stavHry");
+      location.reload();
+    });
+
+  document
+    .getElementById("ulozitStatistiku")
+    .addEventListener("click", () => this.ulozitStavHry());
+}
+
+aktualizujIQSkore() {
+  this.intervaly.push(
+    setInterval(() => {
+      const IQ = this.getCelkoveIQ();
+      this.skoreIQ += IQ;
+      this.celkoveNasbiraneIQ += IQ;
+
+      this.upgrades.forEach((upgrade, index) => {
+        if (index > 0) {
+          upgrade.totalIQ += upgrade.spocitejIQProdukci();
+        }
+      });
+
+      this.aktualizujIQps();
+    }, 1000)
+  );
+
+  this.intervaly.push(setInterval(() => {
+      this.ulozitStavHry();
+      console.log("Stav hry uložen automaticky po 60 sekundách.");
+  }, 60000));
+}
+
+getCelkoveIQ() {
+  return this.upgrades.reduce((acc, upgrade) => acc + upgrade.spocitejIQProdukci(), 0);
+}
+
+// Funkce pro výpočet IQps
+aktualizujIQps() {
+  document.getElementById("zobrazSkore").textContent = Number(
+    this.skoreIQ.toFixed(0)
+  ).toLocaleString();
+  document.getElementById("iqps").textContent = `${new Intl.NumberFormat(
+    "cs-CZ"
+  ).format(this.getCelkoveIQ())} IQ/s`;
+
+// Funkce pro výpočet ceny upgradu
+  this.upgrades.forEach((upgrade) => {
+    document.getElementById(
+      `${upgrade.id}lvl`
+    ).textContent = `LVL ${upgrade.level}`;
+    document.getElementById(`${upgrade.id}CenaAktualizovana`).textContent =
+      Number(upgrade.aktualniCena.toFixed(0)).toLocaleString();
+  });
+}
+// blok pro ukládání+načítání do a z localStorage, resetování hry a uloženého progresu
+//ulozeni
+async ulozitStavHry() {
+  const stavHry = {
+    skoreIQ: this.skoreIQ,
+    celkoveNasbiraneIQ: this.celkoveNasbiraneIQ,
+    hodnotaKliku: this.hodnotaKliku,
+    upgrady: this.upgrades.map((upgrade) => ({
+      level: upgrade.level,
+      totalIQ: upgrade.totalIQ,
+      aktualniCena: upgrade.aktualniCena,
+    })),
   };
 
   const dataString = btoa(JSON.stringify(stavHry));
@@ -109,49 +295,27 @@ async function ulozitStavHry() {
   localStorage.setItem("stavHryHash", hash);
   console.log("Stav hry uložen, hashován, base64-ován. :)");
 }
-
-function vypocetCenyUpgradu(zakladniCena, level, koeficient = 1.1) {
-  return zakladniCena * Math.pow(koeficient, level);
-}
-async function nacistStavHry() {
+//nacteni
+async nacistStavHry() {
   const ulozenyStav = localStorage.getItem("stavHry");
   const ulozenyHash = localStorage.getItem("stavHryHash");
 
   if (ulozenyStav && ulozenyHash) {
     const aktualniHash = await vytvorHash(ulozenyStav);
 
-    if (ulozenyHash === aktualniHash) {
+    if (aktualniHash === ulozenyHash) {
       const stavHry = JSON.parse(atob(ulozenyStav));
       console.log("Načteni OK.");
 
-      skoreIQ = stavHry.skoreIQ;
-      celkoveNasbiraneIQ = stavHry.celkoveNasbiraneIQ;
-      hodnotaKliku = stavHry.hodnotaKliku;
-      upgrade1Pocet = stavHry.upgrady.upgrade1.level;
-      upgrade1TotalIQ = stavHry.upgrady.upgrade1.totalIQ;
-      upgrade1Cena = vypocetCenyUpgradu(10, upgrade1Pocet);
-      upgrade2Pocet = stavHry.upgrady.upgrade2.level;
-      upgrade2TotalIQ = stavHry.upgrady.upgrade2.totalIQ;
-      upgrade2Cena = vypocetCenyUpgradu(100, upgrade2Pocet);
-      upgrade3Pocet = stavHry.upgrady.upgrade3.level;
-      upgrade3TotalIQ = stavHry.upgrady.upgrade3.totalIQ;
-      upgrade3Cena = vypocetCenyUpgradu(1100, upgrade3Pocet);
-      upgrade4Pocet = stavHry.upgrady.upgrade4.level;
-      upgrade4TotalIQ = stavHry.upgrady.upgrade4.totalIQ;
-      upgrade4Cena = vypocetCenyUpgradu(12000, upgrade4Pocet);
-      upgrade5Pocet = stavHry.upgrady.upgrade5.level;
-      upgrade5TotalIQ = stavHry.upgrady.upgrade5.totalIQ;
-      upgrade5Cena = vypocetCenyUpgradu(130000, upgrade5Pocet);
-      upgrade6Pocet = stavHry.upgrady.upgrade6.level;
-      upgrade6TotalIQ = stavHry.upgrady.upgrade6.totalIQ;
-      upgrade6Cena = vypocetCenyUpgradu(1500000, upgrade6Pocet);
-      upgrade7Pocet = stavHry.upgrady.upgrade7.level;
-      upgrade7TotalIQ = stavHry.upgrady.upgrade7.totalIQ;
-      upgrade7Cena = vypocetCenyUpgradu(22000000, upgrade7Pocet);
-      upgrade8Pocet = stavHry.upgrady.upgrade8.level;
-      upgrade8TotalIQ = stavHry.upgrady.upgrade8.totalIQ;
-      upgrade8Cena = vypocetCenyUpgradu(330000000, upgrade8Pocet);
-      aktualizovatZobrazeniUpgradu();
+      this.skoreIQ = stavHry.skoreIQ;
+      this.celkoveNasbiraneIQ = stavHry.celkoveNasbiraneIQ;
+      this.hodnotaKliku = stavHry.hodnotaKliku;
+
+      stavHry.upgrady.forEach((upgradeData, index) => {
+        this.upgrades[index].level = upgradeData.level;
+        this.upgrades[index].totalIQ = upgradeData.totalIQ;
+        this.upgrades[index].aktualniCena = upgradeData.aktualniCena;
+      });
     } else {
       console.error("Uložená data byla změněna nebo jsou poškozená.");
       alert("Uložená data byla změněna nebo jsou poškozená.");
@@ -159,391 +323,46 @@ async function nacistStavHry() {
   } else {
     console.log("Žádný uložený stav nenalezen.");
   }
+  this.aktualizujIQps();
+}
 }
 
-setInterval(() => {
-  ulozitStavHry();
-  console.log("Stav hry uložen.");
-}, 60000);
-
-saveButton.addEventListener("click", () => {
-  ulozitStavHry();
-  console.log("Stav hry uložen.");
-});
-
-resetButton.addEventListener("click", () => {
-  localStorage.removeItem("stavHry");
-  location.reload();
-});
-
-// Funkce pro výpočet IQps
-function aktualizujIQps() {
-  const iqps =
-    1 * upgrade2Pocet +
-    5 * upgrade3Pocet +
-    50 * upgrade4Pocet +
-    275.0 * upgrade5Pocet +
-    1500.0 * upgrade6Pocet +
-    8250.0 * upgrade7Pocet +
-    45000.0 * upgrade8Pocet;
-  zobrazIQps.textContent = `${new Intl.NumberFormat("cs-CZ", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(iqps)} IQ/s`;
-}
-setInterval(aktualizujIQps, 1000);
-
-// Když kliknu
-klikButton.addEventListener("click", () => {
-  skoreIQ += hodnotaKliku;
-  celkoveNasbiraneIQ += hodnotaKliku;
-  upgrade1TotalIQ += hodnotaKliku;
-  zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-});
-
-// upgrade #1
-upgrade1button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade1Cena) {
-    skoreIQ -= upgrade1Cena;
-    hodnotaKliku *= 1.01;
-    upgrade1Pocet++;
-    upgrade1Cena = vypocetCenyUpgradu(10, upgrade1Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade1lvl").textContent = `LVL ${upgrade1Pocet}`;
-    document.getElementById("upgrade1CenaAktualizovana").textContent = Number(
-      upgrade1Cena.toFixed(0)
-    ).toLocaleString();
-  }
-});
-plavouciOkno(
-  upgrade1button,
-  () => `Neuromotorický upgrade
-
-<i>"Zrychluje nervové dráhy a tím i efektivitu klikání."</i>
-
-Neuromotorický upgrade umožní získat ${hodnotaKliku.toFixed(
-    2
-  )} IQ jedním klikem.
-Neuromotorický upgrade zatím vygeneroval ${upgrade1TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade1TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-// upgrade #2
-upgrade2button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade2Cena) {
-    skoreIQ -= upgrade2Cena;
-    upgrade2Pocet++;
-    upgrade2Cena = vypocetCenyUpgradu(100, upgrade2Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade2lvl").textContent = `LVL ${upgrade2Pocet}`;
-    document.getElementById("upgrade2CenaAktualizovana").textContent = Number(
-      upgrade2Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade2button,
-  () => `Dopaminová pumpa
-
-<i>"Automaticky generuje body za sekundu."</i>
-
-Dopaminová pumpa vytváří ${(1.0 * upgrade2Pocet).toFixed(2)} IQps, což je ${(
-    ((1 * upgrade2Pocet) /
-      (1 * upgrade2Pocet + 5 * upgrade3Pocet + 50 * upgrade4Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Dopaminová pumpa zatím vytvořila ${upgrade2TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade2TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-// upgrade #3
-upgrade3button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade3Cena) {
-    skoreIQ -= upgrade3Cena;
-    upgrade3Pocet++;
-    upgrade3Cena = vypocetCenyUpgradu(1100, upgrade3Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade3lvl").textContent = `LVL ${upgrade3Pocet}`;
-    document.getElementById("upgrade3CenaAktualizovana").textContent = Number(
-      upgrade3Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade3button,
-  () => `Bioprocesory
-
-<i>"Elon říkal, že to půjde."</i>
-
-Bioprocesory vytváří ${(5.0 * upgrade3Pocet).toFixed(2)} IQps, což je ${(
-    ((5 * upgrade3Pocet) /
-      (1 * upgrade2Pocet + 5 * upgrade3Pocet + 50 * upgrade4Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Bioprocesory zatím vytvořily ${upgrade3TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade3TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-// upgrade #4
-upgrade4button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade4Cena) {
-    skoreIQ -= upgrade4Cena;
-    upgrade4Pocet++;
-    upgrade4Cena = vypocetCenyUpgradu(12000, upgrade4Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade4lvl").textContent = `LVL ${upgrade4Pocet}`;
-    document.getElementById("upgrade4CenaAktualizovana").textContent = Number(
-      upgrade4Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade4button,
-  () => `Cloudová výpočetní síla
-
-<i>"Proč k tomu nepoužít další mozky?"</i>
-
-Cloudová výpočetní síla vytváří ${(50.0 * upgrade4Pocet).toFixed(
-    2
-  )} IQps, což je ${(
-    ((50 * upgrade4Pocet) /
-      (1 * upgrade2Pocet + 5 * upgrade3Pocet + 50 * upgrade4Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Cloudová výpočetní síla zatím vytvořila ${upgrade4TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade4TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-//upgrade#5
-upgrade5button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade5Cena) {
-    skoreIQ -= upgrade5Cena;
-    upgrade5Pocet++;
-    upgrade5Cena = vypocetCenyUpgradu(130000, upgrade5Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade5lvl").textContent = `LVL ${upgrade5Pocet}`;
-    document.getElementById("upgrade5CenaAktualizovana").textContent = Number(
-      upgrade5Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade5button,
-  () => `Overclock mozku
-
-<i>"Troška elektrického proudu zrychlí CPU a co tvůj mozek?"</i>
-
-Overclock mozku vytváří ${(275.0 * upgrade5Pocet).toFixed(2)} IQps, což je ${(
-    ((275 * upgrade5Pocet) /
-      (1 * upgrade2Pocet +
-        5 * upgrade3Pocet +
-        50 * upgrade4Pocet +
-        275 * upgrade5Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Overclock mozku zatím vytvořil ${upgrade5TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade5TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-//upgrade#6
-upgrade6button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade6Cena) {
-    skoreIQ -= upgrade6Cena;
-    upgrade6Pocet++;
-    upgrade6Cena = vypocetCenyUpgradu(1500000, upgrade6Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade6lvl").textContent = `LVL ${upgrade6Pocet}`;
-    document.getElementById("upgrade6CenaAktualizovana").textContent = Number(
-      upgrade6Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade6button,
-  () => `Genetická modifikace neuronů
-
-<i>"Co kdyby neuron uměl víc než doteď?"</i>
-
-Genetická modifikace neuronů vytváří ${(1500.0 * upgrade6Pocet).toFixed(
-    2
-  )} IQps, což je ${(
-    ((1500 * upgrade6Pocet) /
-      (1 * upgrade2Pocet +
-        5 * upgrade3Pocet +
-        50 * upgrade4Pocet +
-        275 * upgrade5Pocet +
-        1500 * upgrade6Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Genetická modifikace neuronů zatím vytvořila ${upgrade6TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade6TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-//upgrade#7
-upgrade7button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade7Cena) {
-    skoreIQ -= upgrade7Cena;
-    upgrade7Pocet++;
-    upgrade7Cena = vypocetCenyUpgradu(22000000, upgrade7Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade7lvl").textContent = `LVL ${upgrade7Pocet}`;
-    document.getElementById("upgrade7CenaAktualizovana").textContent = Number(
-      upgrade7Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade7button,
-  () => `Synaptický upgrade
-
-<i>"Optická vlákna místo synapsí?"</i>
-
-Synaptický upgrade vytváří ${(8250.0 * upgrade7Pocet).toFixed(
-    2
-  )} IQps, což je ${(
-    ((8250 * upgrade7Pocet) /
-      (1 * upgrade2Pocet +
-        5 * upgrade3Pocet +
-        50 * upgrade4Pocet +
-        275 * upgrade5Pocet +
-        1500 * upgrade6Pocet +
-        8250 * upgrade7Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Synaptický upgrade zatím vytvořil ${upgrade7TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade7TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-//upgrade#8
-upgrade8button.addEventListener("click", () => {
-  if (skoreIQ >= upgrade8Cena) {
-    skoreIQ -= upgrade8Cena;
-    upgrade8Pocet++;
-    upgrade8Cena = vypocetCenyUpgradu(330000000, upgrade8Pocet);
-    zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-    document.getElementById("upgrade8lvl").textContent = `LVL ${upgrade8Pocet}`;
-    document.getElementById("upgrade8CenaAktualizovana").textContent = Number(
-      upgrade8Cena.toFixed(0)
-    ).toLocaleString();
-    aktualizujIQps();
-  }
-});
-plavouciOkno(
-  upgrade8button,
-  () => `Pozitronové vylepšení
-
-<i>"Nahrazení kritckých částí mozků pozitronovými obvody."</i>
-
-Pozitronové vylepšení vytváří ${(45000.0 * upgrade8Pocet).toFixed(
-    2
-  )} IQps, což je ${(
-    ((45000 * upgrade8Pocet) /
-      (1 * upgrade2Pocet +
-        5 * upgrade3Pocet +
-        50 * upgrade4Pocet +
-        275 * upgrade5Pocet +
-        1500 * upgrade6Pocet +
-        8250 * upgrade7Pocet +
-        45000 * upgrade8Pocet)) *
-    100
-  ).toFixed(1)}% z celkového počtu IQps.
-Pozitronové vylepšení zatím vytvořila ${upgrade8TotalIQ.toFixed(0)} IQ.
-Což je ${((upgrade8TotalIQ / celkoveNasbiraneIQ) * 100).toFixed(
-    1
-  )}% z celkového množství IQ.`
-);
-
-// Automatické přidávání bodů za sekundu
-setInterval(() => {
-  let bodyZaSekundu =
-    1.0 * upgrade2Pocet +
-    5.0 * upgrade3Pocet +
-    50.0 * upgrade4Pocet +
-    275.0 * upgrade5Pocet +
-    1500.0 * upgrade6Pocet +
-    8250.0 * upgrade7Pocet +
-    45000.0 * upgrade8Pocet;
-  skoreIQ += bodyZaSekundu;
-  celkoveNasbiraneIQ += bodyZaSekundu;
-  upgrade2TotalIQ += 1.0 * upgrade2Pocet;
-  upgrade3TotalIQ += 5.0 * upgrade3Pocet;
-  upgrade4TotalIQ += 50.0 * upgrade4Pocet;
-  upgrade5TotalIQ += 275.0 * upgrade5Pocet;
-  upgrade6TotalIQ += 1500.0 * upgrade6Pocet;
-  upgrade7TotalIQ += 8250.0 * upgrade7Pocet;
-  upgrade8TotalIQ += 45000.0 * upgrade8Pocet;
-  zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-}, 1000);
-
-// Aktualizace ukazatele IQ za sekundu
-setInterval(aktualizujIQps, 1000);
-
-function aktualizovatZobrazeniUpgradu() {
-  document.getElementById("upgrade1lvl").textContent = `LVL ${upgrade1Pocet}`;
-  document.getElementById("upgrade1CenaAktualizovana").textContent = Number(
-    upgrade1Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade2lvl").textContent = `LVL ${upgrade2Pocet}`;
-  document.getElementById("upgrade2CenaAktualizovana").textContent = Number(
-    upgrade2Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade3lvl").textContent = `LVL ${upgrade3Pocet}`;
-  document.getElementById("upgrade3CenaAktualizovana").textContent = Number(
-    upgrade3Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade4lvl").textContent = `LVL ${upgrade4Pocet}`;
-  document.getElementById("upgrade4CenaAktualizovana").textContent = Number(
-    upgrade4Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade5lvl").textContent = `LVL ${upgrade5Pocet}`;
-  document.getElementById("upgrade5CenaAktualizovana").textContent = Number(
-    upgrade5Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade6lvl").textContent = `LVL ${upgrade6Pocet}`;
-  document.getElementById("upgrade6CenaAktualizovana").textContent = Number(
-    upgrade6Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade7lvl").textContent = `LVL ${upgrade7Pocet}`;
-  document.getElementById("upgrade7CenaAktualizovana").textContent = Number(
-    upgrade7Cena.toFixed(0)
-  ).toLocaleString();
-  document.getElementById("upgrade8lvl").textContent = `LVL ${upgrade8Pocet}`;
-  document.getElementById("upgrade8CenaAktualizovana").textContent = Number(
-    upgrade8Cena.toFixed(0)
-  ).toLocaleString();
+////globalni funkce, nezávislé na třídách
+//init vypocet ceny upgradu
+function vypocetCenyUpgradu(zakladniCena, level, koeficient = 1.1) {
+return zakladniCena * Math.pow(koeficient, level);
 }
 
+//init Plavouci okno
+function plavouciOkno(button, getText) {
+const okynko = document.createElement("div");
+okynko.className = "okynko";
+document.body.appendChild(okynko);
+
+button.addEventListener("mouseover", (e) => {
+  okynko.innerHTML = getText();
+  const buttonRect = button.getBoundingClientRect();
+  okynko.style.display = "block";
+  okynko.style.left = `${buttonRect.right + 30}px`;
+  okynko.style.top = `${buttonRect.top}px`;
+});
+
+button.addEventListener("mouseout", () => {
+  okynko.style.display = "none";
+});
+}
+
+//hashovaci funkce
+async function vytvorHash(dataString) {
+const encoder = new TextEncoder();
+const data = encoder.encode(dataString);
+const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+const hashArray = Array.from(new Uint8Array(hashBuffer));
+return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+// start hry + blokování označování myší - čeká na načtení HTML, proto na konci
 document.addEventListener("DOMContentLoaded", () => {
-  nacistStavHry();
-  zobrazSkore.textContent = Number(skoreIQ.toFixed(0)).toLocaleString();
-  aktualizovatZobrazeniUpgradu();
-  aktualizujIQps();
+new Hrac();
+document.addEventListener("mousedown", (event) => event.preventDefault());
 });
-
-//---statisticka sekce---
-// Přidání statistik do HTML
-const statIQ = document.getElementById("statCelkemIQ");
-const statKliky = document.getElementById("statKliky");
-const statCas = document.getElementById("statCasHrani");
-const statMaxIQps = document.getElementById("statMaxIQps");
-const statUpgrady = document.getElementById("statUpgrady");
